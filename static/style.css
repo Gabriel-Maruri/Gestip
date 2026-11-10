@@ -1,0 +1,1213 @@
+/* ==========================================================================
+   ESTILO LINEAL Y PROFESIONAL - SISTEMA DE DISEÑO DE ALTA USABILIDAD
+   ========================================================================== */
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  /* Paleta cromática neutra, sofisticada y de alto contraste */
+  --bg-app: #f9fafb;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f3f4f6;
+  --bg-hover: #f4f4f5;
+  
+  --border-light: #e5e7eb;
+  --border-focus: #18181b;
+  --border-divider: #f1f5f9;
+  
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  
+  --accent-primary: #0f172a;
+  --accent-primary-hover: #1e293b;
+  
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --danger-hover: #b91c1c;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  
+  --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   NAVBAR LINEAL Y MINIMALISTA
+   -------------------------------------------------------------------------- */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0 32px;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.nav-brand {
+  order: 1;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-brand-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--text-primary);
+  border-radius: 50%;
+}
+
+.nav-links {
+  order: 2;
+  display: flex;
+  gap: 4px;
+  height: 100%;
+}
+
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 100%;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+
+.nav-links a:hover {
+  color: var(--text-primary);
+}
+
+.nav-links a.on {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  font-weight: 600;
+}
+
+.nav-user-actions {
+  order: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-user-name {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.nav-logout-btn {
+  text-decoration: none;
+  padding: 4px 8px;
+  font-size: 11.5px;
+}
+
+.btn-pwa-pill {
+  padding: 4px 9px;
+  font-size: 11.5px;
+}
+
+/* --------------------------------------------------------------------------
+   CONTENEDOR Y LAYOUT GRID
+   -------------------------------------------------------------------------- */
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+.dashboard-grid-even {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid, .dashboard-grid-even {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   TARJETAS Y MÓDULOS LINEALES
+   -------------------------------------------------------------------------- */
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-divider);
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+/* --------------------------------------------------------------------------
+   MÉTRICAS (KPIs / STATS)
+   -------------------------------------------------------------------------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.stat-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.stat-unit {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.stat-sub {
+  font-size: 11.5px;
+  color: var(--text-subtle);
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   BARRAS DE PROGRESO LINEALES
+   -------------------------------------------------------------------------- */
+.progress-container {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.progress-bar {
+  height: 6px;
+  background-color: var(--bg-subtle);
+  border-radius: 9999px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--text-primary);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.success {
+  background-color: var(--success);
+}
+
+.progress-fill.warning {
+  background-color: var(--warning);
+}
+
+.progress-fill.danger {
+  background-color: var(--danger);
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   FORMULARIOS Y CONTROLES
+   -------------------------------------------------------------------------- */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+input, select, textarea {
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 11px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+input[type="checkbox"], input[type="radio"] {
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+  border: none;
+  box-shadow: none;
+}
+
+input::placeholder, select::placeholder {
+  color: var(--text-subtle);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 1px var(--border-focus);
+}
+
+/* BOTONES */
+button {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  white-space: nowrap;
+}
+
+button.primary {
+  background-color: var(--accent-primary);
+  color: #ffffff;
+  border-color: var(--accent-primary);
+}
+
+button.primary:hover {
+  background-color: var(--accent-primary-hover);
+}
+
+button.sec {
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  border-color: var(--border-light);
+}
+
+button.sec:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+button.danger-action {
+  background-color: #ffffff;
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
+  padding: 3px 7px;
+  font-size: 11.5px;
+  border-radius: var(--radius-xs);
+}
+
+button.danger-action:hover {
+  background-color: var(--danger-bg);
+}
+
+button.btn-danger-primary {
+  background-color: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger);
+}
+
+button.btn-danger-primary:hover {
+  background-color: var(--danger-hover);
+}
+
+/* --------------------------------------------------------------------------
+   TABLAS LINEALES
+   -------------------------------------------------------------------------- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+th {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: var(--bg-subtle);
+}
+
+td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border-divider);
+  color: var(--text-primary);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background-color: #fafafa;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   PILLS Y BADGES
+   -------------------------------------------------------------------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  font-weight: 500;
+  background-color: var(--bg-subtle);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+.badge.primary {
+  background-color: #f4f4f5;
+  color: var(--text-primary);
+  border-color: #d4d4d8;
+  font-weight: 600;
+}
+
+.badge.pr {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+  font-weight: 600;
+}
+
+.badge.danger {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+
+/* --------------------------------------------------------------------------
+   ENTRENAMIENTO: SERIES REALES Y SOBRECARGA PROGRESIVA
+   -------------------------------------------------------------------------- */
+.rutina-group {
+  margin-bottom: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  overflow: hidden;
+}
+
+.rutina-group-header {
+  background-color: var(--bg-subtle);
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exercise-item {
+  border-bottom: 1px solid var(--border-divider);
+  padding: 12px 16px;
+}
+
+.exercise-item:last-child {
+  border-bottom: none;
+}
+
+.exercise-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.series-container {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: var(--bg-app);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-light);
+}
+
+.series-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.serie-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  font-size: 11.5px;
+}
+
+.inline-serie-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline-serie-form input {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   TEMPORIZADOR DE DESCANSO
+   -------------------------------------------------------------------------- */
+.timer-widget {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.timer-display {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-align: center;
+  margin: 6px 0 10px;
+}
+
+.timer-buttons {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.timer-presets {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.timer-preset-btn {
+  padding: 3px 8px;
+  font-size: 11px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+
+.timer-preset-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+/* --------------------------------------------------------------------------
+   HIDRATACIÓN (AGUA)
+   -------------------------------------------------------------------------- */
+.water-widget {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.water-amount {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.water-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   DISCLOSURE COLLAPSIBLE (ACORDEÓN LINEAL)
+   -------------------------------------------------------------------------- */
+details.linear-disclosure {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+details.linear-disclosure summary {
+  padding: 10px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background-color: var(--bg-subtle);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+details.linear-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+details.linear-disclosure summary::after {
+  content: "›";
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+details.linear-disclosure[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.disclosure-content {
+  padding: 14px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* --------------------------------------------------------------------------
+   MINI-CALENDARIO LATERAL COMPACTO
+   -------------------------------------------------------------------------- */
+.mini-cal-card {
+  position: sticky;
+  top: 76px;
+}
+
+.cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.cal-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cal-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.cal-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-xs);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.cal-nav a:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.cal-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cal-table th {
+  padding: 6px 2px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background-color: transparent;
+  border-bottom: none;
+}
+
+.cal-table td {
+  padding: 2px;
+  text-align: center;
+  border-bottom: none;
+}
+
+.btn-dia {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 32px;
+  max-height: 32px;
+  margin: 0 auto;
+  padding: 0;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-light);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.btn-dia:hover {
+  border-color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.btn-dia.ok {
+  background-color: var(--text-primary);
+  color: #ffffff;
+  border-color: var(--text-primary);
+  font-weight: 600;
+}
+
+.btn-dia.hoy {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}
+
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.cal-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.legend-indicator.done {
+  background-color: var(--text-primary);
+}
+
+.legend-indicator.today {
+  border: 1.5px solid #3b82f6;
+}
+
+/* SEMANA COMPACTA */
+.semana-pills {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.semana-pill-day {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   AUTOCOMPLETADO Y SELECTOR DE UNIDADES (ALIMENTACIÓN)
+   -------------------------------------------------------------------------- */
+.search-container {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+
+.dropdown-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-divider);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.dropdown-item strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.dropdown-item small {
+  color: var(--text-muted);
+  display: block;
+  font-size: 11.5px;
+}
+
+/* SELECTOR TOGGLE DE MODO (UNIDAD VS GRAMOS) */
+.segmented-control {
+  display: inline-flex;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.segmented-control label {
+  padding: 5px 12px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  transition: all 0.12s ease;
+}
+
+.segmented-control input[type="radio"] {
+  display: none;
+}
+
+.segmented-control input[type="radio"]:checked + label {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.info-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   ESTADOS VACÍOS Y MENSAJES DE ERROR
+   -------------------------------------------------------------------------- */
+.empty-state {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.alert-message {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-message.error {
+  background-color: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger);
+}
+
+/* ==========================================================================
+   OPTIMIZACIÓN RESPONSIVA Y VISTA MÓVIL PROFESIONAL (PWA / SMARTPHONE)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* NAVBAR ADAPTATIVA DE 2 NIVELES */
+  nav {
+    height: auto;
+    padding: 8px 12px 0;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-brand {
+    order: 1;
+    height: 38px;
+    font-size: 15px;
+  }
+
+  .nav-user-actions {
+    order: 2;
+    height: 38px;
+    gap: 6px;
+  }
+
+  .nav-user-name {
+    display: none; /* Ahorra espacio horizontal en smartphones */
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    height: 40px;
+    margin-top: 2px;
+    border-top: 1px solid var(--border-divider);
+    justify-content: space-around;
+    gap: 0;
+  }
+
+  .nav-links a {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    padding: 0 4px;
+    font-size: 12.5px;
+    border-bottom-width: 2.5px;
+  }
+
+  /* CONTENEDOR PRINCIPAL */
+  main {
+    padding: 12px 10px 48px;
+    max-width: 100%;
+  }
+
+  /* LAYOUT A COLUMNA ÚNICA LINEAL */
+  .dashboard-grid, .dashboard-grid-even {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  /* TARJETAS COMPACTAS */
+  .card {
+    padding: 14px 12px;
+    margin-bottom: 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  .card-header {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-size: 13.5px;
+  }
+
+  .card-subtitle {
+    font-size: 11px;
+  }
+
+  /* FORMULARIOS VERTICALES EN MÓVIL */
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .form-row > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: none !important;
+  }
+
+  .form-row button {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 13px;
+    margin-top: 2px;
+  }
+
+  /* INPUTS CÓMODOS PARA TOQUE TÁCTIL (Evita auto-zoom en iOS Safari) */
+  input, select, textarea {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  /* TABLAS RESPONSIVAS Y COLUMNAS SECUNDARIAS */
+  th, td {
+    padding: 7px 6px;
+    font-size: 11.5px;
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* MINI-CALENDARIO FLUIDO EN MÓVIL */
+  .mini-cal-card {
+    position: static !important;
+  }
+
+  .btn-dia {
+    max-width: 30px;
+    max-height: 30px;
+    font-size: 11px;
+  }
+
+  .semana-pills {
+    gap: 2px;
+  }
+
+  .cal-legend {
+    justify-content: center;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* KPIs Y MÉTRICAS: CUADRÍCULA 2x2 ORDENADA */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .stat-box {
+    padding: 10px 12px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-unit {
+    font-size: 11px;
+  }
+
+  .stat-sub {
+    font-size: 10px;
+  }
+
+  /* Tarjetas impares que ocupan el ancho completo */
+  .stats-grid .stat-box:nth-child(5):last-child,
+  .stats-grid .stat-box:nth-child(3):last-child {
+    grid-column: span 2;
+  }
+
+  /* ENTRENAMIENTO: REGISTRO RÁPIDO DE SERIES EN GIMNASIO */
+  .inline-serie-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+  }
+
+  .inline-serie-form > span {
+    grid-column: span 2;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .inline-serie-form input {
+    width: 100% !important;
+    padding: 7px 8px;
+    font-size: 13px;
+  }
+
+  .inline-serie-form button {
+    grid-column: span 2;
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .exercise-main-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* HIDRATACIÓN (AGUA) ADAPTATIVA */
+  .water-widget {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .water-widget .progress-bar {
+    width: 100% !important;
+  }
+
+  .water-actions {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .water-actions form {
+    flex: 1;
+  }
+
+  .water-actions button {
+    width: 100%;
+  }
+
+  /* SELECTOR DE MODO (PORCIÓN VS GRAMOS) A ANCHO COMPLETO */
+  .segmented-control {
+    width: 100%;
+    display: flex;
+  }
+
+  .segmented-control label {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+  }
+
+  /* BARRAS DE PRESUPUESTO EN FINANZAS */
+  .progress-meta {
+    font-size: 10.5px;
+  }
+}

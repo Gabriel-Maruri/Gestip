@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gestip — Gestión Personal</title>
+  
+  <!-- PWA & Metadatos móviles -->
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Gestip">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icon.svg') }}">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <nav>
+    <a href="{{ url_for('inicio') }}" class="nav-brand">
+      <span class="nav-brand-dot"></span>
+      <span>Gestip</span>
+    </a>
+
+    {% if g.user %}
+    <div class="nav-links">
+      {% for ep, t in [('entrenamiento','Entrenamiento'), ('alimentacion','Alimentación'), ('finanzas','Finanzas')] %}
+      <a href="{{ url_for(ep) }}" class="{{ 'on' if request.endpoint == ep }}">{{ t }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="nav-user-actions">
+      <button id="btn-pwa-install" class="sec btn-pwa-pill" style="display: none;">
+        Instalar app
+      </button>
+      <span class="nav-user-name">
+        {{ g.user.nombre }}
+      </span>
+      <a href="{{ url_for('logout') }}" class="badge nav-logout-btn" title="Cerrar sesión activa">
+        Cerrar sesión
+      </a>
+    </div>
+    {% else %}
+    <div class="nav-user-actions">
+      <button id="btn-pwa-install" class="sec btn-pwa-pill" style="display: none;">
+        Instalar app
+      </button>
+      <a href="{{ url_for('login') }}" class="badge {{ 'primary' if request.endpoint == 'login' else '' }}" style="text-decoration: none;">
+        Iniciar sesión
+      </a>
+      <a href="{{ url_for('registro') }}" class="badge {{ 'primary' if request.endpoint == 'registro' else '' }}" style="text-decoration: none;">
+        Crear cuenta
+      </a>
+    </div>
+    {% endif %}
+  </nav>
+
+  <main>
+    {% block c %}{% endblock %}
+  </main>
+
+  <!-- Script Service Worker y lógica de instalación PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+
+    // Detección automática del prompt de instalación en celulares/escritorio
+    let deferredPrompt = null;
+    const btnInstall = document.getElementById('btn-pwa-install');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (btnInstall) {
+        btnInstall.style.display = 'inline-flex';
+        btnInstall.addEventListener('click', async () => {
+          btnInstall.style.display = 'none';
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+          }
+        });
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      if (btnInstall) btnInstall.style.display = 'none';
+      deferredPrompt = null;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+﻿nombre,categoria,unidad,gramos_unidad,kcal,proteina,carbohidratos,grasa,fibra,calcio_mg,hierro_mg,potasio_mg,vit_c_mg,vit_a_ug,vit_b12_ug
+Banano / Plátano,Frutas,unidad,120,89.0,1.1,22.8,0.3,2.6,5.0,0.3,358.0,8.7,3.0,0.0
+Manzana roja,Frutas,unidad,180,52.0,0.3,13.8,0.2,2.4,6.0,0.1,107.0,4.6,3.0,0.0
+Manzana verde,Frutas,unidad,180,52.0,0.4,13.6,0.2,2.8,7.0,0.1,120.0,5.0,4.0,0.0
+Naranja,Frutas,unidad,130,47.0,0.9,11.8,0.1,2.4,40.0,0.1,181.0,53.2,11.0,0.0
+Mandarina,Frutas,unidad,90,53.0,0.8,13.3,0.3,1.8,37.0,0.15,166.0,26.7,34.0,0.0
+Pera,Frutas,unidad,180,57.0,0.4,15.2,0.1,3.1,9.0,0.2,116.0,4.3,1.0,0.0
+Durazno / Melocotón,Frutas,unidad,150,39.0,0.9,9.5,0.3,1.5,6.0,0.3,190.0,6.6,16.0,0.0
+Uvas verdes,Frutas,taza,150,69.0,0.7,18.1,0.2,0.9,10.0,0.4,191.0,3.2,3.0,0.0
+Uvas rojas / negras,Frutas,taza,150,69.0,0.7,18.1,0.2,0.9,14.0,0.3,191.0,4.0,3.0,0.0
+Fresas / Frutillas,Frutas,taza,150,32.0,0.7,7.7,0.3,2.0,16.0,0.4,153.0,58.8,1.0,0.0
+Papaya,Frutas,taza,145,43.0,0.5,10.8,0.3,1.7,20.0,0.3,182.0,60.9,47.0,0.0
+Piña,Frutas,rebanada,85,50.0,0.5,13.1,0.1,1.4,13.0,0.3,109.0,47.8,3.0,0.0
+Sandía,Frutas,rebanada,280,30.0,0.6,7.5,0.2,0.4,7.0,0.2,112.0,8.1,28.0,0.0
+Melón cantalupo,Frutas,taza,160,34.0,0.8,8.2,0.2,0.9,9.0,0.2,267.0,36.7,169.0,0.0
+Mango,Frutas,unidad,200,60.0,0.8,15.0,0.4,1.6,11.0,0.2,168.0,36.4,54.0,0.0
+Aguacate / Palta,Frutas,unidad,150,160.0,2.0,8.5,14.7,6.7,12.0,0.6,485.0,10.0,7.0,0.0
+Limón,Frutas,unidad,60,29.0,1.1,9.3,0.3,2.8,26.0,0.6,138.0,53.0,1.0,0.0
+Lima,Frutas,unidad,60,30.0,0.7,10.5,0.2,2.8,33.0,0.6,102.0,29.1,2.0,0.0
+Maracuyá,Frutas,unidad,18,51.0,0.4,13.6,0.1,0.2,4.0,0.2,278.0,29.8,36.0,0.0
+Guayaba,Frutas,unidad,55,68.0,2.5,14.3,1.0,5.4,18.0,0.3,417.0,228.3,31.0,0.0
+Kiwi,Frutas,unidad,70,61.0,1.1,14.7,0.5,3.0,34.0,0.3,312.0,92.7,4.0,0.0
+Plátano verde crudo,Frutas,unidad,150,152.0,1.3,36.7,0.1,2.2,2.0,0.8,431.0,20.2,0.0,0.0
+Plátano verde cocido,Frutas,unidad,150,116.0,0.8,31.2,0.1,2.3,3.0,0.5,465.0,10.9,45.0,0.0
+Plátano maduro crudo,Frutas,unidad,150,122.0,1.3,31.9,0.4,2.3,3.0,0.6,499.0,18.4,56.0,0.0
+Plátano maduro horneado,Frutas,unidad,120,140.0,1.5,36.0,0.5,2.5,4.0,0.7,520.0,12.0,60.0,0.0
+Arándanos / Blueberries,Frutas,taza,148,57.0,0.7,14.5,0.3,2.4,6.0,0.3,77.0,9.7,3.0,0.0
+Moras,Frutas,taza,140,43.0,1.4,9.6,0.5,5.3,29.0,0.6,162.0,21.0,11.0,0.0
+Frambuesas,Frutas,taza,125,52.0,1.2,11.9,0.7,6.5,25.0,0.7,151.0,26.2,2.0,0.0
+Cerezas,Frutas,taza,140,63.0,1.1,16.0,0.2,2.1,13.0,0.4,222.0,7.0,3.0,0.0
+Ciruela,Frutas,unidad,65,46.0,0.7,11.4,0.3,1.4,6.0,0.2,157.0,9.5,17.0,0.0
+Toronja / Pomelo,Frutas,unidad,200,42.0,0.8,10.7,0.1,1.6,22.0,0.1,135.0,31.2,58.0,0.0
+Coco rallado fresco,Frutas,taza,80,354.0,3.3,15.2,33.5,9.0,14.0,2.4,356.0,3.3,0.0,0.0
+Higo fresco,Frutas,unidad,50,74.0,0.8,19.2,0.3,2.9,35.0,0.4,232.0,2.0,7.0,0.0
+Granada,Frutas,unidad,150,83.0,1.7,18.7,1.2,4.0,10.0,0.3,236.0,10.2,0.0,0.0
+Pasas de uva,Frutas,puñado,30,299.0,3.1,79.2,0.5,3.7,50.0,1.9,749.0,2.3,0.0,0.0
+Tomate,Verduras y tubérculos,unidad,120,18.0,0.9,3.9,0.2,1.2,10.0,0.3,237.0,13.7,42.0,0.0
+Tomate cherry,Verduras y tubérculos,taza,150,18.0,0.9,3.9,0.2,1.2,10.0,0.3,237.0,13.7,42.0,0.0
+Cebolla blanca,Verduras y tubérculos,unidad,110,40.0,1.1,9.3,0.1,1.7,23.0,0.2,146.0,7.4,0.0,0.0
+Cebolla roja / morada,Verduras y tubérculos,unidad,110,40.0,1.1,9.3,0.1,1.7,23.0,0.2,146.0,7.4,0.0,0.0
+Cebollín / Cebolla de rama,Verduras y tubérculos,taza,50,32.0,1.8,7.3,0.2,2.6,72.0,1.5,276.0,18.8,50.0,0.0
+Zanahoria cruda,Verduras y tubérculos,unidad,60,41.0,0.9,9.6,0.2,2.8,33.0,0.3,320.0,5.9,835.0,0.0
+Zanahoria cocida,Verduras y tubérculos,taza,150,35.0,0.8,8.2,0.2,3.0,30.0,0.3,235.0,3.6,852.0,0.0
+Pimiento rojo,Verduras y tubérculos,unidad,120,26.0,1.0,6.0,0.3,2.1,7.0,0.4,211.0,127.7,157.0,0.0
+Pimiento verde,Verduras y tubérculos,unidad,120,20.0,0.9,4.6,0.2,1.7,10.0,0.3,175.0,80.4,18.0,0.0
+Pimiento amarillo,Verduras y tubérculos,unidad,120,27.0,1.0,6.3,0.2,0.9,11.0,0.5,212.0,183.5,10.0,0.0
+Pepino,Verduras y tubérculos,unidad,200,15.0,0.7,3.6,0.1,0.5,16.0,0.3,147.0,2.8,5.0,0.0
+Lechuga romana,Verduras y tubérculos,taza,50,17.0,1.2,3.3,0.3,2.1,33.0,1.0,247.0,4.0,436.0,0.0
+Lechuga crespa,Verduras y tubérculos,taza,40,15.0,1.4,2.8,0.2,1.3,36.0,0.9,194.0,9.2,370.0,0.0
+Brócoli cocido,Verduras y tubérculos,taza,156,35.0,2.4,7.2,0.4,3.3,40.0,0.7,293.0,64.9,77.0,0.0
+Brócoli crudo,Verduras y tubérculos,taza,90,34.0,2.8,6.6,0.4,2.6,47.0,0.7,316.0,89.2,31.0,0.0
+Espinaca cruda,Verduras y tubérculos,taza,30,23.0,2.9,3.6,0.4,2.2,99.0,2.7,558.0,28.1,469.0,0.0
+Espinaca cocida,Verduras y tubérculos,taza,180,23.0,3.0,3.8,0.3,2.4,136.0,3.6,466.0,9.8,524.0,0.0
+Coliflor cocida,Verduras y tubérculos,taza,124,23.0,1.8,4.1,0.5,2.3,16.0,0.3,142.0,44.3,1.0,0.0
+Repollo blanco,Verduras y tubérculos,taza,70,25.0,1.3,5.8,0.1,2.5,40.0,0.5,170.0,36.6,5.0,0.0
+Repollo morado,Verduras y tubérculos,taza,70,31.0,1.4,7.4,0.2,2.1,45.0,0.8,243.0,57.0,56.0,0.0
+Remolacha cocida,Verduras y tubérculos,taza,170,44.0,1.7,10.0,0.2,2.0,16.0,0.8,305.0,3.6,2.0,0.0
+Zapallo / Calabaza cocida,Verduras y tubérculos,taza,245,20.0,0.7,4.9,0.1,1.1,15.0,0.6,230.0,4.7,288.0,0.0
+Zucchini / Calabacín cocido,Verduras y tubérculos,taza,180,17.0,1.2,3.1,0.4,1.0,15.0,0.4,261.0,12.9,10.0,0.0
+Vainitas / Judías verdes cocidas,Verduras y tubérculos,taza,125,35.0,1.9,7.9,0.3,3.2,44.0,0.7,146.0,9.7,32.0,0.0
+Champiñones frescos,Verduras y tubérculos,taza,70,22.0,3.1,3.3,0.3,1.0,3.0,0.5,318.0,2.1,0.0,0.04
+Champiñones salteados,Verduras y tubérculos,taza,120,48.0,3.9,4.4,2.8,1.5,8.0,0.8,350.0,2.5,0.0,0.05
+Ajo,Verduras y tubérculos,diente,3,149.0,6.4,33.1,0.5,2.1,181.0,1.7,401.0,31.2,0.0,0.0
+Choclo / Maíz cocido,Verduras y tubérculos,mazorca,90,96.0,3.4,21.0,1.5,2.4,3.0,0.5,218.0,5.5,13.0,0.0
+Papa cocida con piel,Verduras y tubérculos,unidad,150,87.0,1.9,20.1,0.1,1.8,5.0,0.3,379.0,13.0,0.0,0.0
+Papa frita,Verduras y tubérculos,porción,100,312.0,3.4,41.4,15.0,3.8,18.0,0.8,579.0,4.7,0.0,0.0
+Camote / Batata cocida,Verduras y tubérculos,unidad,130,76.0,1.4,17.7,0.1,2.5,27.0,0.7,230.0,12.8,787.0,0.0
+Yuca cocida,Verduras y tubérculos,porción,100,160.0,1.4,38.1,0.3,1.8,16.0,0.3,271.0,20.6,1.0,0.0
+Espárragos cocidos,Verduras y tubérculos,taza,180,22.0,2.4,4.1,0.2,2.0,23.0,0.9,224.0,7.7,50.0,0.0
+Berenjena cocida,Verduras y tubérculos,taza,100,35.0,0.8,8.6,0.2,2.5,9.0,0.2,123.0,1.3,1.0,0.0
+Apio fresco,Verduras y tubérculos,taza,100,16.0,0.7,3.0,0.2,1.6,40.0,0.2,260.0,3.1,22.0,0.0
+Acelga cocida,Verduras y tubérculos,taza,175,20.0,1.9,4.1,0.1,2.1,58.0,2.3,379.0,18.0,306.0,0.0
+Rábano crudo,Verduras y tubérculos,taza,100,16.0,0.7,3.4,0.1,1.6,25.0,0.3,233.0,14.8,0.0,0.0
+Alcachofa cocida,Verduras y tubérculos,unidad,120,53.0,2.9,12.0,0.3,5.7,44.0,0.6,370.0,7.4,1.0,0.0
+Kale / Col rizada cruda,Verduras y tubérculos,taza,20,35.0,2.9,4.4,1.5,4.1,254.0,1.6,348.0,93.4,241.0,0.0
+Perejil fresco,Verduras y tubérculos,cucharada,4,36.0,3.0,6.3,0.8,3.3,138.0,6.2,554.0,133.0,421.0,0.0
+Cilantro fresco,Verduras y tubérculos,cucharada,4,23.0,2.1,3.7,0.5,2.8,67.0,1.8,521.0,27.0,337.0,0.0
+Pechuga de pollo cocida,Carnes y aves,porción,120,165.0,31.0,0.0,3.6,0.0,15.0,1.0,256.0,0.0,6.0,0.3
+Pechuga de pollo cruda,Carnes y aves,porción,120,120.0,22.5,0.0,2.6,0.0,11.0,0.7,256.0,0.0,5.0,0.2
+Muslo de pollo cocido,Carnes y aves,porción,100,155.0,24.2,0.0,5.7,0.0,11.0,1.1,256.0,0.0,6.0,0.4
+Pierna de pollo cocida,Carnes y aves,unidad,90,161.0,23.5,0.0,6.8,0.0,12.0,1.2,240.0,0.0,7.0,0.4
+Alitas de pollo cocidas,Carnes y aves,unidad,35,203.0,22.6,0.0,12.0,0.0,14.0,1.0,200.0,0.0,8.0,0.3
+Carne molida de res magra 90/10,Carnes y aves,porción,100,196.0,26.1,0.0,9.4,0.0,18.0,2.4,342.0,0.0,0.0,2.5
+Carne molida de res 85/15 cocida,Carnes y aves,porción,100,232.0,24.6,0.0,14.0,0.0,20.0,2.7,349.0,0.0,3.0,2.8
+Bistec de res a la plancha,Carnes y aves,porción,120,188.0,30.3,0.0,6.6,0.0,17.0,2.1,380.0,0.0,0.0,1.9
+Lomo fino de res cocido,Carnes y aves,porción,120,179.0,28.0,0.0,6.5,0.0,14.0,2.8,350.0,0.0,0.0,2.1
+Costilla de res asada,Carnes y aves,porción,100,290.0,22.0,0.0,22.0,0.0,12.0,2.0,270.0,0.0,0.0,2.3
+Chuleta de cerdo cocida,Carnes y aves,porción,120,231.0,27.5,0.0,12.5,0.0,16.0,1.0,390.0,0.5,2.0,0.7
+Lomo de cerdo cocido,Carnes y aves,porción,100,209.0,28.6,0.0,9.6,0.0,18.0,1.1,425.0,0.6,2.0,0.7
+Costilla de cerdo asada,Carnes y aves,porción,100,277.0,24.0,0.0,19.5,0.0,22.0,1.3,340.0,0.0,2.0,0.8
+Jamón cocido de pierna,Carnes y aves,rebanada,28,164.0,16.6,3.6,8.8,1.3,24.0,1.0,287.0,4.0,0.0,0.4
+Jamón de pavo,Carnes y aves,rebanada,28,104.0,17.1,2.4,2.3,0.0,18.0,0.9,290.0,0.0,0.0,0.5
+Salchicha de res,Carnes y aves,unidad,45,315.0,11.7,3.0,28.1,0.0,14.0,1.1,364.0,0.0,3.0,1.0
+Salchicha de pavo,Carnes y aves,unidad,45,196.0,13.5,2.0,14.8,0.0,48.0,1.2,210.0,0.0,0.0,0.8
+Tocino cocido crocante,Carnes y aves,rebanada,8,468.0,33.9,1.7,35.1,0.0,11.0,1.0,499.0,0.0,11.0,1.1
+Hígado de res cocido,Carnes y aves,porción,100,191.0,29.1,5.1,5.3,0.0,6.0,6.5,352.0,1.9,9442.0,70.6
+Carne de cordero cocida,Carnes y aves,porción,100,258.0,25.6,0.0,16.5,0.0,17.0,1.9,310.0,0.0,0.0,2.6
+Chorizo parrillero,Carnes y aves,unidad,75,340.0,14.0,2.0,30.5,0.0,15.0,1.3,270.0,0.0,0.0,1.2
+Mortadela,Carnes y aves,rebanada,25,287.0,12.0,3.5,25.0,0.0,20.0,1.1,230.0,0.0,0.0,0.9
+Pavo asado pechuga,Carnes y aves,porción,100,135.0,30.1,0.0,0.7,0.0,14.0,1.4,293.0,0.0,0.0,0.4
+Chicharrón de cerdo,Carnes y aves,porción,50,544.0,61.3,0.0,31.3,0.0,30.0,1.8,127.0,0.0,0.0,0.6
+Nuggets de pollo,Carnes y aves,unidad,20,296.0,14.0,18.0,18.5,1.0,15.0,1.0,230.0,0.0,0.0,0.3
+Albóndiga de res casera,Carnes y aves,unidad,30,220.0,16.0,8.0,14.0,0.5,25.0,1.8,280.0,0.5,10.0,1.5
+Milanesa de pollo apanada,Carnes y aves,porción,130,240.0,23.0,12.0,11.0,0.8,18.0,1.4,290.0,0.0,8.0,0.4
+Atún en agua enlatado,Pescados y mariscos,lata,120,116.0,25.5,0.0,0.8,0.0,11.0,1.5,237.0,0.0,0.0,3.0
+Atún en aceite enlatado,Pescados y mariscos,lata,120,198.0,29.1,0.0,8.2,0.0,13.0,1.4,250.0,0.0,15.0,2.2
+Salmón a la plancha,Pescados y mariscos,porción,120,206.0,22.1,0.0,12.4,0.0,15.0,0.3,384.0,3.7,69.0,2.8
+Tilapia cocida al vapor / plancha,Pescados y mariscos,porción,120,128.0,26.2,0.0,2.7,0.0,14.0,0.7,380.0,0.0,0.0,1.9
+Corvina / Pescado blanco cocido,Pescados y mariscos,porción,120,105.0,22.8,0.0,1.0,0.0,25.0,0.5,360.0,1.0,20.0,2.0
+Merluza cocida,Pescados y mariscos,porción,120,90.0,19.5,0.0,1.3,0.0,30.0,0.4,320.0,0.0,15.0,1.5
+Trucha a la plancha,Pescados y mariscos,porción,120,190.0,26.6,0.0,8.5,0.0,25.0,0.6,460.0,2.0,35.0,4.5
+Bacalao cocido,Pescados y mariscos,porción,120,105.0,22.8,0.0,0.9,0.0,16.0,0.4,500.0,1.0,12.0,1.0
+Sardinas en aceite enlatadas,Pescados y mariscos,lata,90,208.0,24.6,0.0,11.5,0.0,382.0,2.9,397.0,0.0,32.0,8.9
+Sardinas en tomate enlatadas,Pescados y mariscos,lata,90,185.0,21.0,2.5,10.0,0.5,320.0,2.5,360.0,5.0,25.0,7.5
+Camarón cocido,Pescados y mariscos,porción,85,99.0,24.0,0.2,0.3,0.0,70.0,0.5,259.0,0.0,54.0,1.4
+Calamar cocido,Pescados y mariscos,porción,100,92.0,15.6,3.1,1.4,0.0,32.0,0.6,246.0,4.7,10.0,1.3
+Pulpo cocido,Pescados y mariscos,porción,100,164.0,29.8,4.4,2.1,0.0,106.0,9.5,630.0,8.0,90.0,36.0
+Langostino cocido,Pescados y mariscos,porción,100,106.0,20.3,0.9,1.7,0.0,60.0,2.4,220.0,2.0,30.0,1.5
+Mejillones cocidos,Pescados y mariscos,porción,100,172.0,23.8,7.4,4.5,0.0,33.0,6.7,268.0,13.6,91.0,24.0
+Almejas cocidas,Pescados y mariscos,porción,85,148.0,25.5,5.1,2.0,0.0,92.0,28.0,628.0,22.0,90.0,98.9
+Cangrejo pulpa cocida,Pescados y mariscos,porción,85,87.0,18.1,0.0,1.1,0.0,89.0,0.8,250.0,3.0,2.0,7.0
+Filete de pescado apanado,Pescados y mariscos,porción,120,215.0,15.0,16.0,10.0,0.5,22.0,0.9,280.0,0.0,10.0,1.0
+Ceviche de camarón,Pescados y mariscos,taza,180,85.0,14.0,5.0,1.0,1.0,45.0,1.2,280.0,18.0,30.0,0.8
+Ceviche de pescado blanco,Pescados y mariscos,taza,180,95.0,16.0,4.5,1.2,0.8,25.0,0.8,310.0,20.0,25.0,1.2
+Huevo de gallina cocido,Huevos y lácteos,unidad,50,155.0,12.6,1.1,10.6,0.0,50.0,1.2,126.0,0.0,160.0,1.1
+Huevo frito,Huevos y lácteos,unidad,46,196.0,13.6,0.8,14.8,0.0,62.0,1.9,152.0,0.0,219.0,1.0
+Huevo revuelto,Huevos y lácteos,unidad,60,149.0,10.0,1.6,11.0,0.0,65.0,1.4,138.0,0.0,175.0,0.9
+Clara de huevo cocida,Huevos y lácteos,unidad,33,52.0,10.9,0.7,0.2,0.0,7.0,0.1,163.0,0.0,0.0,0.1
+Yema de huevo,Huevos y lácteos,unidad,17,322.0,15.9,3.6,26.5,0.0,129.0,2.7,109.0,0.0,381.0,2.0
+Huevo de codorniz cocido,Huevos y lácteos,unidad,10,158.0,13.0,0.4,11.1,0.0,64.0,3.6,132.0,0.0,156.0,1.6
+Leche entera de vaca,Huevos y lácteos,vaso,244,61.0,3.2,4.8,3.3,0.0,113.0,0.03,132.0,0.0,46.0,0.5
+Leche semidescremada,Huevos y lácteos,vaso,245,50.0,3.3,4.8,1.9,0.0,118.0,0.03,145.0,0.0,55.0,0.5
+Leche descremada 0% grasa,Huevos y lácteos,vaso,245,34.0,3.4,5.0,0.1,0.0,122.0,0.03,156.0,0.0,61.0,0.5
+Leche evaporada,Huevos y lácteos,taza,125,134.0,6.8,10.0,7.6,0.0,261.0,0.2,303.0,1.0,80.0,0.4
+Leche condensada,Huevos y lácteos,cucharada,20,321.0,7.9,54.4,8.7,0.0,284.0,0.2,371.0,1.0,75.0,0.4
+Leche de almendras sin azúcar,Huevos y lácteos,vaso,240,15.0,0.6,0.3,1.2,0.2,180.0,0.3,65.0,0.0,60.0,0.0
+Leche de soya sin azúcar,Huevos y lácteos,vaso,240,33.0,2.8,1.8,1.6,0.5,120.0,0.6,120.0,0.0,45.0,0.8
+Leche de avena,Huevos y lácteos,vaso,240,47.0,1.0,7.5,1.5,0.8,120.0,0.2,110.0,0.0,40.0,0.4
+Yogur natural entero,Huevos y lácteos,vaso,200,61.0,3.5,4.7,3.3,0.0,121.0,0.1,155.0,0.5,27.0,0.4
+Yogur griego natural 0% grasa,Huevos y lácteos,vaso,170,59.0,10.2,3.6,0.4,0.0,110.0,0.1,141.0,0.0,0.0,0.5
+Yogur griego entero,Huevos y lácteos,vaso,170,97.0,9.0,4.0,5.0,0.0,100.0,0.1,140.0,0.0,40.0,0.5
+Yogur de fresa / frutas,Huevos y lácteos,vaso,200,99.0,3.5,18.6,1.2,0.0,120.0,0.1,180.0,1.0,20.0,0.4
+Queso fresco criollo,Huevos y lácteos,rebanada,30,260.0,16.0,2.5,20.0,0.0,500.0,0.2,120.0,0.0,180.0,1.2
+Queso mozzarella,Huevos y lácteos,rebanada,28,299.0,22.2,2.4,22.1,0.0,505.0,0.4,76.0,0.0,179.0,2.3
+Queso cheddar,Huevos y lácteos,rebanada,28,410.0,24.3,2.1,33.8,0.0,711.0,0.2,76.0,0.0,263.0,0.9
+Queso parmesano rallado,Huevos y lácteos,cucharada,10,420.0,35.8,3.2,28.6,0.0,1184.0,0.8,92.0,0.0,207.0,1.9
+Queso cottage bajo en grasa,Huevos y lácteos,taza,110,81.0,10.4,4.7,2.3,0.0,68.0,0.1,85.0,0.0,37.0,0.6
+Queso ricotta,Huevos y lácteos,taza,120,174.0,11.3,3.0,13.0,0.0,207.0,0.4,105.0,0.0,118.0,0.3
+Mantequilla de vaca,Huevos y lácteos,cucharada,14,717.0,0.9,0.1,81.1,0.0,24.0,0.02,24.0,0.0,684.0,0.2
+Crema de leche / nata,Huevos y lácteos,cucharada,15,340.0,2.8,2.8,36.1,0.0,66.0,0.1,95.0,0.6,411.0,0.2
+Queso crema untable,Huevos y lácteos,cucharada,15,342.0,6.0,5.5,34.0,0.0,98.0,0.4,138.0,0.0,308.0,0.2
+Arroz blanco cocido,Cereales y panes,taza,158,130.0,2.7,28.2,0.3,0.4,10.0,1.2,35.0,0.0,0.0,0.0
+Arroz integral cocido,Cereales y panes,taza,195,123.0,2.7,25.6,1.0,1.6,3.0,0.6,86.0,0.0,0.0,0.0
+Pan blanco de molde,Cereales y panes,rebanada,28,265.0,9.0,49.0,3.2,2.7,144.0,3.6,115.0,0.0,0.0,0.0
+Pan integral de molde,Cereales y panes,rebanada,28,252.0,12.5,42.7,3.5,6.0,161.0,2.5,254.0,0.0,0.0,0.0
+Pan baguette / francés,Cereales y panes,rebanada,35,274.0,10.7,51.9,2.4,2.3,52.0,3.4,117.0,0.0,0.0,0.0
+Pan pita blanco,Cereales y panes,unidad,60,275.0,9.1,55.7,1.2,2.2,86.0,2.7,120.0,0.0,0.0,0.0
+Croissant / Medialuna,Cereales y panes,unidad,57,406.0,8.2,45.8,21.0,2.6,37.0,2.0,118.0,0.2,178.0,0.2
+Bagel,Cereales y panes,unidad,90,257.0,10.1,49.5,1.7,2.3,20.0,3.3,115.0,0.0,0.0,0.0
+Avena en hojuelas cruda,Cereales y panes,taza,80,379.0,13.2,67.7,6.5,10.1,52.0,4.3,362.0,0.0,0.0,0.0
+Avena cocida en agua,Cereales y panes,taza,230,71.0,2.5,12.0,1.5,1.7,9.0,0.9,70.0,0.0,0.0,0.0
+Fideos / Pasta cocida,Cereales y panes,taza,140,158.0,5.8,30.9,0.9,1.8,7.0,1.3,44.0,0.0,0.0,0.0
+Fideos integrales cocidos,Cereales y panes,taza,140,149.0,6.0,30.0,1.2,3.9,14.0,1.5,75.0,0.0,0.0,0.0
+Tortilla de maíz,Cereales y panes,unidad,26,218.0,5.7,45.0,2.8,5.2,80.0,1.4,154.0,0.0,0.0,0.0
+Tortilla de trigo para wrap,Cereales y panes,unidad,45,304.0,8.2,51.0,7.5,3.0,150.0,3.2,120.0,0.0,0.0,0.0
+Quinua cocida,Cereales y panes,taza,185,120.0,4.4,21.3,1.9,2.8,17.0,1.5,172.0,0.0,0.0,0.0
+Cuscús cocido,Cereales y panes,taza,157,112.0,3.8,23.2,0.2,1.4,8.0,0.4,58.0,0.0,0.0,0.0
+Harina de trigo todo uso,Cereales y panes,cucharada,8,364.0,10.3,76.3,1.0,2.7,15.0,4.6,107.0,0.0,0.0,0.0
+Harina de maíz precocida (PAN),Cereales y panes,cucharada,10,365.0,7.5,77.0,1.5,4.0,20.0,3.0,150.0,0.0,0.0,0.0
+Maicena / Fécula de maíz,Cereales y panes,cucharada,8,381.0,0.3,91.3,0.1,0.9,2.0,0.5,3.0,0.0,0.0,0.0
+Canguil / Palomitas de maíz,Cereales y panes,taza,8,387.0,12.9,77.8,4.5,14.5,7.0,3.2,329.0,0.0,10.0,0.0
+Granola con frutos secos,Cereales y panes,taza,50,471.0,10.0,64.0,20.0,7.0,60.0,3.5,340.0,1.0,15.0,0.0
+Cereal de maíz hojuelas (Corn Flakes),Cereales y panes,taza,30,357.0,7.5,84.1,0.4,3.3,4.0,28.9,168.0,52.0,500.0,5.0
+Galletas de sal / agua,Cereales y panes,unidad,6,421.0,9.4,71.0,11.0,2.8,25.0,4.0,130.0,0.0,0.0,0.0
+Galletas de avena,Cereales y panes,unidad,18,440.0,6.5,68.0,16.5,4.0,45.0,2.5,180.0,0.0,10.0,0.0
+Galletas dulces rellenas,Cereales y panes,unidad,12,480.0,4.5,70.0,20.5,2.0,30.0,2.8,140.0,0.0,0.0,0.0
+Arepa de maíz asada,Cereales y panes,unidad,100,210.0,4.5,42.0,2.5,3.5,30.0,1.8,140.0,0.0,0.0,0.0
+Empanada de carne horneada,Cereales y panes,unidad,90,260.0,9.0,28.0,12.0,1.5,25.0,2.0,180.0,2.0,15.0,0.8
+Pancakes / Panqueques,Cereales y panes,unidad,50,227.0,6.4,28.3,9.7,1.0,219.0,1.8,132.0,0.3,56.0,0.2
+Waffle tostado,Cereales y panes,unidad,75,291.0,7.9,32.9,14.1,1.8,250.0,2.4,159.0,0.0,60.0,0.3
+Fréjol negro cocido,Legumbres,taza,172,132.0,8.9,23.7,0.5,8.7,27.0,2.1,355.0,0.0,0.0,0.0
+Fréjol rojo cocido,Legumbres,taza,177,127.0,8.7,22.8,0.5,7.4,28.0,2.9,403.0,1.2,0.0,0.0
+Fréjol blanco cocido,Legumbres,taza,180,139.0,9.7,25.1,0.4,6.3,90.0,3.7,392.0,0.0,0.0,0.0
+Lentejas cocidas,Legumbres,taza,198,116.0,9.0,20.1,0.4,7.9,19.0,3.3,369.0,1.5,0.0,0.0
+Garbanzos cocidos,Legumbres,taza,164,164.0,8.9,27.4,2.6,7.6,49.0,2.9,291.0,1.3,1.0,0.0
+Arvejas / Guisantes cocidos,Legumbres,taza,160,84.0,5.4,15.6,0.2,5.5,27.0,1.5,271.0,14.2,40.0,0.0
+Habas cocidas,Legumbres,taza,170,62.0,4.8,10.1,0.5,3.6,18.0,1.5,193.0,19.8,14.0,0.0
+Chochos / Altramuces cocidos,Legumbres,taza,166,119.0,15.6,9.9,2.9,2.8,51.0,1.2,245.0,1.1,0.0,0.0
+Edamame cocido,Legumbres,taza,155,121.0,11.9,8.9,5.2,5.2,63.0,2.3,436.0,6.1,9.0,0.0
+Tofu firme,Legumbres,porción,120,144.0,17.3,2.8,8.7,2.3,683.0,2.7,237.0,0.2,0.0,0.0
+Tofu suave,Legumbres,porción,120,76.0,8.1,1.9,4.2,0.8,130.0,1.1,120.0,0.0,0.0,0.0
+Tempeh cocido,Legumbres,porción,100,192.0,20.3,7.6,10.8,4.5,111.0,2.7,412.0,0.0,0.0,0.1
+Hummus de garbanzo,Legumbres,cucharada,15,166.0,7.9,14.3,9.6,6.0,38.0,2.4,289.0,0.0,1.0,0.0
+Maní tostado sin sal,Frutos secos y grasas,puñado,28,585.0,23.7,21.5,49.7,8.0,54.0,2.1,658.0,0.0,0.0,0.0
+Almendras,Frutos secos y grasas,puñado,28,579.0,21.2,21.6,49.9,12.5,269.0,3.7,733.0,0.0,0.0,0.0
+Nueces peladas,Frutos secos y grasas,puñado,28,654.0,15.2,13.7,65.2,6.7,98.0,2.9,441.0,1.3,1.0,0.0
+Semillas de zapallo / calabaza,Frutos secos y grasas,puñado,28,559.0,30.2,10.7,49.1,6.0,46.0,8.8,809.0,1.9,1.0,0.0
+Semillas de girasol tostadas,Frutos secos y grasas,puñado,28,584.0,20.8,20.0,51.5,8.6,78.0,5.3,645.0,1.4,3.0,0.0
+Semillas de chía,Frutos secos y grasas,cucharada,12,486.0,16.5,42.1,30.7,34.4,631.0,7.7,407.0,1.6,3.0,0.0
+Semillas de linaza,Frutos secos y grasas,cucharada,10,534.0,18.3,28.9,42.2,27.3,255.0,5.7,813.0,0.6,0.0,0.0
+Semillas de sésamo / ajonjolí,Frutos secos y grasas,cucharada,9,573.0,17.7,23.4,49.7,11.8,975.0,14.6,468.0,0.0,1.0,0.0
+Pistachos tostados,Frutos secos y grasas,puñado,28,562.0,20.2,27.5,45.3,10.3,105.0,3.9,1025.0,5.6,26.0,0.0
+Castañas de cajú / Marañón,Frutos secos y grasas,puñado,28,553.0,18.2,30.2,43.8,3.3,37.0,6.7,660.0,0.5,0.0,0.0
+Avellanas,Frutos secos y grasas,puñado,28,628.0,15.0,16.7,60.8,9.7,114.0,4.7,680.0,6.3,1.0,0.0
+Mantequilla de maní natural,Frutos secos y grasas,cucharada,16,588.0,25.1,20.0,50.4,6.0,43.0,1.9,649.0,0.0,0.0,0.0
+Mantequilla de almendra,Frutos secos y grasas,cucharada,16,614.0,21.0,18.8,55.5,10.3,347.0,3.5,748.0,0.0,0.0,0.0
+Aceite de oliva virgen extra,Frutos secos y grasas,cucharada,14,884.0,0.0,0.0,100.0,0.0,1.0,0.6,1.0,0.0,0.0,0.0
+Aceite vegetal de girasol / soya,Frutos secos y grasas,cucharada,14,884.0,0.0,0.0,100.0,0.0,0.0,0.05,0.0,0.0,0.0,0.0
+Aceite de coco,Frutos secos y grasas,cucharada,14,862.0,0.0,0.0,100.0,0.0,0.0,0.04,0.0,0.0,0.0,0.0
+Manteca de cerdo,Frutos secos y grasas,cucharada,13,902.0,0.0,0.0,100.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+Mayonesa tradicional,Frutos secos y grasas,cucharada,14,680.0,1.0,0.6,74.9,0.0,8.0,0.2,20.0,0.0,16.0,0.1
+Mayonesa light,Frutos secos y grasas,cucharada,15,238.0,0.9,6.4,23.2,0.0,14.0,0.2,25.0,0.0,10.0,0.1
+Café pasado negro sin azúcar,Bebidas y otros,taza,240,2.0,0.3,0.0,0.0,0.0,5.0,0.1,116.0,0.0,0.0,0.0
+Té verde o negro infusión,Bebidas y otros,taza,240,1.0,0.0,0.3,0.0,0.0,0.0,0.0,37.0,0.0,0.0,0.0
+Jugo de naranja natural,Bebidas y otros,vaso,248,45.0,0.7,10.4,0.2,0.2,11.0,0.2,200.0,50.0,10.0,0.0
+Jugo de manzana natural,Bebidas y otros,vaso,248,46.0,0.1,11.3,0.1,0.2,8.0,0.1,101.0,0.9,1.0,0.0
+Agua de coco natural,Bebidas y otros,vaso,240,19.0,0.7,3.7,0.2,1.1,24.0,0.3,250.0,2.4,0.0,0.0
+Gaseosa de cola regular,Bebidas y otros,vaso,250,41.0,0.0,10.6,0.0,0.0,2.0,0.02,3.0,0.0,0.0,0.0
+Gaseosa zero / light,Bebidas y otros,vaso,250,0.0,0.0,0.1,0.0,0.0,4.0,0.0,15.0,0.0,0.0,0.0
+Cerveza regular,Bebidas y otros,vaso,355,43.0,0.5,3.6,0.0,0.0,4.0,0.02,27.0,0.0,0.0,0.0
+Vino tinto de mesa,Bebidas y otros,copa,150,85.0,0.1,2.6,0.0,0.0,8.0,0.5,127.0,0.0,0.0,0.0
+Vino blanco de mesa,Bebidas y otros,copa,150,82.0,0.1,2.6,0.0,0.0,9.0,0.3,71.0,0.0,0.0,0.0
+Azúcar blanca refinada,Bebidas y otros,cucharadita,4,387.0,0.0,100.0,0.0,0.0,1.0,0.05,2.0,0.0,0.0,0.0
+Panela / Azúcar morena,Bebidas y otros,cucharada,12,380.0,0.1,98.1,0.0,0.0,83.0,0.7,133.0,0.0,0.0,0.0
+Miel de abeja pura,Bebidas y otros,cucharada,21,304.0,0.3,82.4,0.0,0.2,6.0,0.4,52.0,0.5,0.0,0.0
+Mermelada de frutas,Bebidas y otros,cucharada,20,278.0,0.4,69.0,0.1,1.1,20.0,0.5,77.0,8.0,5.0,0.0
+Cacao puro amargo en polvo,Bebidas y otros,cucharada,5,228.0,19.6,57.9,13.7,37.0,128.0,13.9,1524.0,0.0,0.0,0.0
+Chocolate con leche,Bebidas y otros,porción,30,535.0,7.7,59.4,29.7,3.4,189.0,2.4,372.0,0.0,50.0,0.8
+Chocolate negro 70% cacao,Bebidas y otros,porción,30,598.0,7.8,45.9,42.6,10.9,73.0,11.9,715.0,0.0,2.0,0.3
+Salsa de tomate / Kétchup,Bebidas y otros,cucharada,17,111.0,1.3,27.4,0.1,0.3,16.0,0.4,298.0,4.1,45.0,0.0
+Mostaza amarilla preparada,Bebidas y otros,cucharadita,5,60.0,4.4,5.3,3.3,4.0,58.0,1.5,138.0,0.0,4.0,0.0
+Salsa de soya tradicional,Bebidas y otros,cucharada,16,53.0,8.1,4.9,0.6,0.8,33.0,1.4,435.0,0.0,0.0,0.0
+Vinagre de manzana,Bebidas y otros,cucharada,15,22.0,0.0,0.9,0.0,0.0,7.0,0.2,73.0,0.0,0.0,0.0
+Dulce de leche / Manjar,Bebidas y otros,cucharada,20,315.0,6.8,55.4,7.4,0.0,250.0,0.2,340.0,1.5,60.0,0.5
+Proteína Whey en polvo,Bebidas y otros,porción,30,390.0,78.0,6.0,5.0,1.0,450.0,1.5,520.0,0.0,50.0,1.5

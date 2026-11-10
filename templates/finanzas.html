@@ -1,0 +1,487 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+{% endblock %}
+{% block c %}
+
+<!-- TARJETAS MÉTRICAS DE FINANZAS -->
+<div class="stats-grid">
+  <div class="stat-box">
+    <div class="stat-label">Ingresos del mes</div>
+    <div class="stat-value" style="color: var(--success);">
+      ${{ '%.2f'|format(total_ingresos) }}
+    </div>
+    <div class="stat-sub">Total percibido en el período activo</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Egresos del mes</div>
+    <div class="stat-value" style="color: var(--danger);">
+      ${{ '%.2f'|format(total_egresos) }}
+    </div>
+    <div class="stat-sub">Total gastado en el período activo</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Balance neto</div>
+    <div class="stat-value" style="color: {{ 'var(--success)' if balance >= 0 else 'var(--danger)' }};">
+      {{ '+' if balance > 0 else '' }}${{ '%.2f'|format(balance) }}
+    </div>
+    <div class="stat-sub">{{ 'Superávit disponible' if balance >= 0 else 'Déficit acumulado' }}</div>
+  </div>
+</div>
+
+<div class="dashboard-grid-even">
+  <!-- COLUMNA IZQUIERDA: FORMULARIOS Y TABLAS DE MOVIMIENTOS -->
+  <div class="main-column">
+    <!-- REGISTRAR EGRESO -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Registrar egreso</h2>
+      </div>
+      <form method="post" action="{{ url_for('add_egreso') }}" class="form-row">
+        <label style="flex: 1; min-width: 160px;">
+          <span>Categoría</span>
+          <select name="categoria_id">
+            <option value="">Seleccionar categoría...</option>
+            {% for c in categorias_egreso %}
+            <option value="{{ c.id }}">{{ c.nombre }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label style="flex: 1; min-width: 140px;">
+          <span>O nueva categoría</span>
+          <input name="categoria_nueva" placeholder="Ej. Suscripciones">
+        </label>
+        <label style="flex: 1.2; min-width: 160px;">
+          <span>Concepto / Detalle</span>
+          <input name="concepto" placeholder="Ej. Pago de electricidad">
+        </label>
+        <label style="width: 105px;">
+          <span>Monto ($)</span>
+          <input name="monto" type="number" step="0.01" min="0.01" placeholder="0.00" required>
+        </label>
+        <label style="width: 130px;">
+          <span>Fecha</span>
+          <input name="fecha" type="date" value="{{ hoy }}" required>
+        </label>
+        <button class="btn-danger-primary">Guardar egreso</button>
+      </form>
+    </div>
+
+    <!-- REGISTRAR INGRESO -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Registrar ingreso</h2>
+      </div>
+      <form method="post" action="{{ url_for('add_ingreso') }}" class="form-row">
+        <label style="flex: 1; min-width: 160px;">
+          <span>Fuente</span>
+          <select name="fuente_id">
+            <option value="">Seleccionar fuente...</option>
+            {% for f in fuentes %}
+            <option value="{{ f.id }}">{{ f.nombre }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label style="flex: 1; min-width: 140px;">
+          <span>O nueva fuente</span>
+          <input name="fuente_nueva" placeholder="Ej. Trabajo independiente">
+        </label>
+        <label style="width: 105px;">
+          <span>Monto ($)</span>
+          <input name="monto" type="number" step="0.01" min="0.01" placeholder="0.00" required>
+        </label>
+        <label style="width: 130px;">
+          <span>Fecha</span>
+          <input name="fecha" type="date" value="{{ hoy }}" required>
+        </label>
+        <button class="primary">Guardar ingreso</button>
+      </form>
+    </div>
+
+    <!-- METAS DE AHORRO -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Metas de ahorro</h2>
+        <span class="card-subtitle">{{ metas_ahorro|length }} metas activas</span>
+      </div>
+
+      {% if metas_ahorro %}
+      <div style="display: grid; gap: 12px; margin-bottom: 16px;">
+        {% for m in metas_ahorro %}
+        <div style="border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 12px; background: var(--bg-surface);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-weight: 600; font-size: 13px;">{{ m.nombre }}</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-weight: 700; font-size: 13px;">${{ '%.2f'|format(m.monto_actual) }} / ${{ '%.2f'|format(m.monto_objetivo) }}</span>
+              <form method="post" action="{{ url_for('del_meta', id=m.id) }}" style="display:inline; margin:0;">
+                <button class="danger-action" style="padding: 1px 5px; font-size: 10px;">✕</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="progress-bar">
+            <div class="progress-fill success" style="width: {{ m.porcentaje }}%;"></div>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <span style="font-size: 11px; color: var(--text-muted);">
+              Progreso: {{ m.porcentaje }}% {% if m.fecha_limite %}&bull; Límite: {{ m.fecha_limite.strftime('%d/%m/%Y') }}{% endif %}
+            </span>
+            <form method="post" action="{{ url_for('abonar_meta', id=m.id) }}" style="display: flex; gap: 4px; align-items: center; margin:0;">
+              <input name="monto" type="number" step="1" min="1" placeholder="Monto" style="width: 75px; padding: 3px 6px; font-size: 11px;" required>
+              <button class="sec" style="padding: 3px 8px; font-size: 11px;">+ Abonar</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Crear nueva meta de ahorro -->
+      <form method="post" action="{{ url_for('add_meta') }}" class="form-row">
+        <label style="flex: 2; min-width: 160px;">
+          <span>Objetivo de ahorro</span>
+          <input name="nombre" placeholder="Ej. Fondo de emergencia" required>
+        </label>
+        <label style="width: 110px;">
+          <span>Meta ($)</span>
+          <input name="monto_objetivo" type="number" step="1" min="1" placeholder="1000" required>
+        </label>
+        <label style="width: 110px;">
+          <span>Aporte inicial</span>
+          <input name="monto_actual" type="number" step="1" min="0" value="0">
+        </label>
+        <label style="width: 130px;">
+          <span>Fecha meta</span>
+          <input name="fecha_limite" type="date">
+        </label>
+        <button class="sec">Crear meta</button>
+      </form>
+    </div>
+
+    <!-- TRANSACCIONES FIJAS RECURRENTES -->
+    <details class="linear-disclosure">
+      <summary>Transacciones fijas recurrentes del mes</summary>
+      <div class="disclosure-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-size: 12px; color: var(--text-muted);">Configura arriendos, sueldos o servicios fijos.</span>
+          <form method="post" action="{{ url_for('aplicar_fijas') }}" style="margin:0;">
+            <button class="primary" style="padding: 4px 10px; font-size: 11.5px;">Aplicar todas al mes</button>
+          </form>
+        </div>
+
+        {% if transacciones_fijas %}
+        <div class="table-responsive" style="margin-bottom: 14px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Concepto</th>
+                <th>Clasificación</th>
+                <th class="num">Día</th>
+                <th class="num">Monto</th>
+                <th style="width: 50px; text-align: right;">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tf in transacciones_fijas %}
+              <tr>
+                <td><span class="badge {{ 'danger' if tf.tipo == 'egreso' else 'primary' }}">{{ tf.tipo|capitalize }}</span></td>
+                <td style="font-weight: 500;">{{ tf.concepto }}</td>
+                <td>{{ tf.categoria or tf.fuente or '—' }}</td>
+                <td class="num">{{ tf.dia_mes }}</td>
+                <td class="num" style="font-weight: 600;">${{ '%.2f'|format(tf.monto) }}</td>
+                <td style="text-align: right;">
+                  <form method="post" action="{{ url_for('del_transaccion_fija', id=tf.id) }}" style="display:inline;">
+                    <button class="danger-action" style="padding: 1px 5px; font-size: 10px;">✕</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+
+        <!-- Formulario nueva transacción fija -->
+        <form method="post" action="{{ url_for('add_transaccion_fija') }}" class="form-row">
+          <label style="width: 95px;">
+            <span>Tipo</span>
+            <select name="tipo">
+              <option value="egreso">Egreso</option>
+              <option value="ingreso">Ingreso</option>
+            </select>
+          </label>
+          <label style="flex: 2; min-width: 150px;">
+            <span>Concepto</span>
+            <input name="concepto" placeholder="Ej. Alquiler o Sueldo" required>
+          </label>
+          <label style="width: 100px;">
+            <span>Monto ($)</span>
+            <input name="monto" type="number" step="0.01" min="0.01" required>
+          </label>
+          <label style="flex: 1.5; min-width: 140px;">
+            <span>Categoría / Fuente</span>
+            <select name="categoria_id">
+              <option value="">(Categoría egreso)</option>
+              {% for c in categorias_egreso %}
+              <option value="{{ c.id }}">{{ c.nombre }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label style="width: 80px;">
+            <span>Día mes</span>
+            <input name="dia_mes" type="number" min="1" max="31" value="1" required>
+          </label>
+          <button class="sec">Guardar fija</button>
+        </form>
+      </div>
+    </details>
+
+    <!-- TABLA DE EGRESOS RECIENTES -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Egresos del mes</h2>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <a href="{{ url_for('exportar_finanzas') }}" class="badge" style="text-decoration: none; padding: 4px 8px;" title="Descargar reporte en CSV">Exportar CSV</a>
+          <span class="card-subtitle">{{ recientes_egresos|length }} registros</span>
+        </div>
+      </div>
+      {% if recientes_egresos %}
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Categoría</th>
+              <th class="hide-mobile">Concepto</th>
+              <th class="num">Monto</th>
+              <th style="width: 50px; text-align: right;">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in recientes_egresos %}
+            <tr>
+              <td style="color: var(--text-muted); font-size: 11px;">{{ r.fecha.strftime('%d/%m') }}</td>
+              <td><span class="badge">{{ r.categoria }}</span></td>
+              <td class="hide-mobile">{{ r.concepto or '—' }}</td>
+              <td class="num" style="font-weight: 600; color: var(--danger); font-variant-numeric: tabular-nums;">
+                -${{ '%.2f'|format(r.monto) }}
+              </td>
+              <td style="text-align: right;">
+                <form method="post" action="{{ url_for('del_egreso', id=r.id) }}" style="display:inline;">
+                  <button class="danger-action" title="Eliminar egreso">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <p>No se han registrado egresos en el mes activo.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- TABLA DE INGRESOS RECIENTES -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Ingresos del mes</h2>
+        <span class="card-subtitle">{{ recientes_ingresos|length }} registrados</span>
+      </div>
+      {% if recientes_ingresos %}
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Fuente</th>
+              <th class="num">Monto</th>
+              <th style="width: 70px; text-align: right;">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in recientes_ingresos %}
+            <tr>
+              <td style="color: var(--text-muted);">{{ r.fecha.strftime('%d/%m') }}</td>
+              <td style="font-weight: 500;">{{ r.nombre }}</td>
+              <td class="num" style="font-weight: 600; color: var(--success); font-variant-numeric: tabular-nums;">
+                +${{ '%.2f'|format(r.monto) }}
+              </td>
+              <td style="text-align: right;">
+                <form method="post" action="{{ url_for('del_ingreso', id=r.id) }}" style="display:inline;">
+                  <button class="danger-action" title="Eliminar ingreso">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <p>No se han registrado ingresos en el mes activo.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- COLUMNA DERECHA: PRESUPUESTOS Y GRÁFICOS -->
+  <div class="side-column">
+    <!-- PRESUPUESTOS POR CATEGORÍA CON BARRAS DE ALERTA -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Presupuestos por categoría</h2>
+      </div>
+
+      <div style="display: grid; gap: 14px;">
+        {% for c in categorias_egreso %}
+        {% if c.presupuesto > 0 or c.total > 0 %}
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px;">
+            <span style="font-weight: 600;">{{ c.nombre }}</span>
+            <span style="font-variant-numeric: tabular-nums;">
+              ${{ '%.2f'|format(c.total) }} {% if c.presupuesto > 0 %}<span style="color: var(--text-muted);">/ ${{ '%.0f'|format(c.presupuesto) }}</span>{% endif %}
+            </span>
+          </div>
+
+          {% if c.presupuesto > 0 %}
+          <div class="progress-bar" style="margin-top: 5px;">
+            <div class="progress-fill {{ 'danger' if c.porcentaje >= 100 else ('warning' if c.porcentaje >= 80 else 'success') }}" 
+                 style="width: {{ [c.porcentaje, 100]|min }}%;"></div>
+          </div>
+          <div class="progress-meta">
+            <span>Uso de presupuesto</span>
+            <span style="font-weight: 600; color: {{ 'var(--danger)' if c.porcentaje >= 100 else ('var(--warning)' if c.porcentaje >= 80 else 'var(--text-muted)') }};">
+              {{ c.porcentaje }}%
+            </span>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- Ajustar presupuesto de categoría -->
+      <details class="linear-disclosure" style="margin-top: 14px; margin-bottom: 0;">
+        <summary>Fijar límite presupuestario</summary>
+        <div class="disclosure-content">
+          <form method="post" action="{{ url_for('actualizar_presupuesto') }}" class="form-row">
+            <label style="flex: 1; min-width: 140px;">
+              <span>Categoría</span>
+              <select name="categoria_id" required>
+                {% for c in categorias_egreso %}
+                <option value="{{ c.id }}">{{ c.nombre }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label style="width: 100px;">
+              <span>Tope ($)</span>
+              <input name="presupuesto" type="number" step="10" min="0" placeholder="Ej. 200" required>
+            </label>
+            <button class="sec">Asignar</button>
+          </form>
+        </div>
+      </details>
+    </div>
+
+    <!-- GRÁFICO 1: COMPARATIVA INGRESOS VS EGRESOS -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Balance mensual</h2>
+      </div>
+      <div style="height: 190px; position: relative;">
+        <canvas id="chart-balance"></canvas>
+      </div>
+    </div>
+
+    <!-- GRÁFICO 2: DESGLOSE DE EGRESOS POR CATEGORÍA -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Egresos por categoría</h2>
+      </div>
+      {% if chart_egresos_data %}
+      <div style="height: 220px; position: relative;">
+        <canvas id="chart-egresos-dona"></canvas>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <p>Registra gastos para visualizar la distribución proporcional.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. Gráfico de Barras: Ingresos vs Egresos
+  const ctxBalance = document.getElementById("chart-balance");
+  if (ctxBalance) {
+    new Chart(ctxBalance, {
+      type: "bar",
+      data: {
+        labels: ["Ingresos", "Egresos"],
+        datasets: [{
+          data: [{{ total_ingresos }}, {{ total_egresos }}],
+          backgroundColor: ["#059669", "#dc2626"],
+          borderRadius: 4,
+          barThickness: 34
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: value => "$" + value,
+              font: { size: 11 }
+            },
+            grid: { color: "#f3f4f6" }
+          }
+        }
+      }
+    });
+  }
+
+  // 2. Gráfico de Dona: Distribución de Egresos por Categoría
+  const ctxEgresos = document.getElementById("chart-egresos-dona");
+  if (ctxEgresos && {{ chart_egresos_data|tojson }}.length > 0) {
+    new Chart(ctxEgresos, {
+      type: "doughnut",
+      data: {
+        labels: {{ chart_egresos_labels|tojson }},
+        datasets: [{
+          data: {{ chart_egresos_data|tojson }},
+          backgroundColor: [
+            "#0f172a", "#334155", "#64748b", "#94a3b8",
+            "#cbd5e1", "#dc2626", "#ea580c", "#d97706"
+          ],
+          borderWidth: 1,
+          borderColor: "#ffffff"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { boxWidth: 10, font: { size: 11 } }
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+
+{% endblock %}

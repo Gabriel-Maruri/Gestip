@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+{% block c %}
+
+<!-- TARJETAS MÉTRICAS CON METAS Y PROGRESO LINEAL -->
+<div class="stats-grid">
+  <!-- CALORÍAS -->
+  <div class="stat-box">
+    <div class="stat-label">Calorías hoy</div>
+    <div class="stat-value">
+      {{ '%.0f'|format(tot.kcal) }} <span class="stat-unit">/ {{ '%.0f'|format(perfil.meta_kcal) }} kcal</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill {{ 'danger' if pct_kcal > 100 else '' }}" style="width: {{ pct_kcal }}%;"></div>
+      </div>
+      <div class="progress-meta">
+        <span>Consumido</span>
+        <span>{{ pct_kcal }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROTEÍNA -->
+  <div class="stat-box">
+    <div class="stat-label">Proteína</div>
+    <div class="stat-value">
+      {{ '%.1f'|format(tot.proteina) }} <span class="stat-unit">/ {{ '%.0f'|format(perfil.meta_proteina) }} g</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill success" style="width: {{ pct_prot }}%;"></div>
+      </div>
+      <div class="progress-meta">
+        <span>Objetivo</span>
+        <span>{{ pct_prot }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARBOHIDRATOS -->
+  <div class="stat-box">
+    <div class="stat-label">Carbohidratos</div>
+    <div class="stat-value">
+      {{ '%.1f'|format(tot.carbohidratos) }} <span class="stat-unit">/ {{ '%.0f'|format(perfil.meta_carbos) }} g</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ pct_carb }}%;"></div>
+      </div>
+      <div class="progress-meta">
+        <span>Consumido</span>
+        <span>{{ pct_carb }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRASA -->
+  <div class="stat-box">
+    <div class="stat-label">Grasa</div>
+    <div class="stat-value">
+      {{ '%.1f'|format(tot.grasa) }} <span class="stat-unit">/ {{ '%.0f'|format(perfil.meta_grasa) }} g</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ pct_grasa }}%;"></div>
+      </div>
+      <div class="progress-meta">
+        <span>Consumido</span>
+        <span>{{ pct_grasa }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VITAMINAS Y MINERALES -->
+  <div class="stat-box">
+    <div class="stat-label">Vitaminas y minerales</div>
+    <div class="stat-value">
+      {{ tot_micros_g }} <span class="stat-unit">g</span>
+    </div>
+    <div class="stat-sub">Micronutrientes acumulados</div>
+  </div>
+</div>
+
+<!-- WIDGET RÁPIDO DE HIDRATACIÓN (AGUA) -->
+<div class="water-widget">
+  <div>
+    <span style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--text-muted); letter-spacing: 0.04em;">Hidratación diaria</span>
+    <div class="water-amount">
+      {{ agua_ml }} ml <span style="font-size: 12px; font-weight: 500; color: var(--text-muted);">/ {{ meta_agua_ml }} ml ({{ vasos_agua }} vasos)</span>
+    </div>
+    <div class="progress-bar" style="width: 220px; margin-top: 6px;">
+      <div class="progress-fill success" style="width: {{ pct_agua }}%;"></div>
+    </div>
+  </div>
+  <div class="water-actions">
+    <form method="post" action="{{ url_for('actualizar_agua') }}" style="display:inline;">
+      <input type="hidden" name="accion" value="restar">
+      <button class="sec" style="padding: 5px 10px;">- 1 vaso</button>
+    </form>
+    <form method="post" action="{{ url_for('actualizar_agua') }}" style="display:inline;">
+      <input type="hidden" name="accion" value="sumar">
+      <button class="primary" style="padding: 5px 12px;">+ 1 vaso (250 ml)</button>
+    </form>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <!-- COLUMNA PRINCIPAL: REGISTRO Y COMIDAS POR MOMENTO -->
+  <div class="main-column">
+    <!-- FORMULARIO DE REGISTRO CON MOMENTO DEL DÍA -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Registrar alimento consumido</h2>
+      </div>
+
+      {% if err %}
+      <div class="alert-message error">
+        No se encontró el alimento indicado en la base de datos.
+      </div>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('add_consumo') }}" id="form-consumo">
+        <div class="form-row">
+          <!-- MOMENTO DEL DÍA -->
+          <div style="width: 130px;">
+            <label>
+              <span>Momento</span>
+              <select name="momento" required>
+                {% for m in momentos %}
+                <option value="{{ m }}">{{ m }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+
+          <!-- BUSCADOR CON BORRADO AL CLIC -->
+          <div class="search-container">
+            <label>
+              <span>Alimento</span>
+              <input id="input-alimento" 
+                     name="alimento" 
+                     placeholder="Buscar alimento (ej. Manzana, Pollo, Avena...)" 
+                     autocomplete="off" 
+                     required>
+            </label>
+            <div id="dropdown-alimentos" class="dropdown-results"></div>
+          </div>
+
+          <!-- MODO DE MEDIDA: PORCIÓN O GRAMOS -->
+          <div>
+            <label><span>Medida</span></label>
+            <div class="segmented-control">
+              <input type="radio" name="modo" id="modo-porcion" value="porcion" checked>
+              <label for="modo-porcion" id="lbl-modo-porcion">Porciones</label>
+              
+              <input type="radio" name="modo" id="modo-gramos" value="gramos">
+              <label for="modo-gramos" id="lbl-modo-gramos">Gramos (g)</label>
+            </div>
+          </div>
+
+          <!-- CANTIDAD -->
+          <div style="width: 120px;">
+            <label>
+              <span id="label-cantidad">Cantidad</span>
+              <input id="input-cantidad" 
+                     name="cantidad" 
+                     type="number" 
+                     step="0.1" 
+                     min="0.1" 
+                     value="1" 
+                     required>
+            </label>
+          </div>
+
+          <button class="primary" style="margin-bottom: 1px;">Agregar</button>
+        </div>
+
+        <div id="alimento-info-pill" class="info-note" style="display: none;">
+          Referencia técnica: <strong id="info-unidad-nombre">1 unidad</strong> ≈ <strong id="info-gramos-ref">100</strong> gramos
+        </div>
+      </form>
+    </div>
+
+    <!-- COMIDAS DE HOY ORGANIZADAS POR MOMENTO DEL DÍA -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Comidas de hoy por momento</h2>
+        <span class="card-subtitle">{{ items|length }} registros</span>
+      </div>
+
+      {% set hay_comidas = false %}
+      {% for m in momentos %}
+        {% set comidas_m = comidas_por_momento[m] %}
+        {% if comidas_m %}
+          {% set hay_comidas = true %}
+          <div class="rutina-group" style="margin-bottom: 14px;">
+            <div class="rutina-group-header">
+              <span>{{ m }}</span>
+              <span class="card-subtitle" style="font-weight: 500;">
+                Subtotal: {{ '%.0f'|format(subtotales_momento[m].kcal) }} kcal &bull; {{ '%.1f'|format(subtotales_momento[m].prot) }}g prot
+              </span>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Alimento</th>
+                    <th class="num">Cantidad</th>
+                    <th class="num">Calorías</th>
+                    <th class="num">Proteína</th>
+                    <th class="num hide-mobile">Carbos</th>
+                    <th class="num hide-mobile">Grasa</th>
+                    <th style="width: 50px; text-align: right;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for i in comidas_m %}
+                  <tr>
+                    <td>
+                      <span style="font-weight: 500;">{{ i.nombre }}</span>
+                      {% if i.categoria %}
+                      <span class="badge" style="margin-left: 6px;">{{ i.categoria }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="num">
+                      {% if i.porciones and i.porciones != 1.0 %}
+                        {{ '%.1f'|format(i.porciones) }} {{ i.unidad }}(s) <span style="color: var(--text-muted); font-size: 11px;">({{ '%.0f'|format(i.gramos) }}g)</span>
+                      {% else %}
+                        {{ '%.0f'|format(i.gramos) }} g
+                      {% endif %}
+                    </td>
+                    <td class="num" style="font-weight: 600;">{{ '%.0f'|format(i.kcal) }} kcal</td>
+                    <td class="num">{{ '%.1f'|format(i.prot) }} g</td>
+                    <td class="num hide-mobile">{{ '%.1f'|format(i.carb) }} g</td>
+                    <td class="num hide-mobile">{{ '%.1f'|format(i.grasa) }} g</td>
+                    <td style="text-align: right;">
+                      <form method="post" action="{{ url_for('del_consumo', id=i.id) }}" style="display:inline;">
+                        <button class="danger-action" title="Eliminar registro">Eliminar</button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      {% if not hay_comidas %}
+      <div class="empty-state">
+        <p>No se han registrado alimentos hoy. Utiliza el formulario superior para añadir tu primera comida.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- RECETAS Y PLATOS FRECUENTES -->
+    <details class="linear-disclosure">
+      <summary>Platos frecuentes y recetas compuestas</summary>
+      <div class="disclosure-content">
+        {% if recetas %}
+        <div class="table-responsive" style="margin-bottom: 16px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre del plato</th>
+                <th>Momento habitual</th>
+                <th class="num">Ingredientes</th>
+                <th class="num">Calorías</th>
+                <th class="num">Proteína</th>
+                <th style="width: 140px; text-align: right;">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in recetas %}
+              <tr>
+                <td style="font-weight: 500;">{{ r.nombre }}</td>
+                <td><span class="badge">{{ r.momento }}</span></td>
+                <td class="num">{{ r.num_items }}</td>
+                <td class="num" style="font-weight: 600;">{{ '%.0f'|format(r.kcal) }} kcal</td>
+                <td class="num">{{ '%.1f'|format(r.prot) }} g</td>
+                <td style="text-align: right;">
+                  <form method="post" action="{{ url_for('consumir_receta', id=r.id) }}" style="display:inline;">
+                    <button class="primary" style="padding: 2px 7px; font-size: 11px;">Consumir</button>
+                  </form>
+                  <form method="post" action="{{ url_for('del_receta', id=r.id) }}" style="display:inline; margin-left: 4px;">
+                    <button class="danger-action" style="padding: 2px 6px; font-size: 11px;">✕</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">No tienes platos guardados. Guarda tus combinaciones frecuentes para agregarlas en un clic.</p>
+        {% endif %}
+
+        <!-- Guardar nuevo plato -->
+        <form method="post" action="{{ url_for('add_receta') }}" class="form-row">
+          <label style="flex: 1.5; min-width: 160px;">
+            <span>Nombre del plato / receta</span>
+            <input name="nombre" placeholder="Ej. Desayuno habitual" required>
+          </label>
+          <label style="width: 120px;">
+            <span>Momento</span>
+            <select name="momento">
+              {% for m in momentos %}
+              <option value="{{ m }}">{{ m }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label style="flex: 2; min-width: 180px;">
+            <span>Ingrediente inicial</span>
+            <input name="alimento" placeholder="Buscar alimento para la receta..." required>
+          </label>
+          <label style="width: 90px;">
+            <span>Porciones</span>
+            <input name="cantidad" type="number" step="0.5" value="1" required>
+          </label>
+          <button class="sec">Guardar plato</button>
+        </form>
+      </div>
+    </details>
+
+    <!-- METAS Y PERFIL NUTRICIONAL -->
+    <details class="linear-disclosure">
+      <summary>Ajustar objetivos nutricionales diarios</summary>
+      <div class="disclosure-content">
+        <form method="post" action="{{ url_for('guardar_perfil') }}" class="form-row">
+          <label style="width: 110px;">
+            <span>Meta kcal</span>
+            <input name="meta_kcal" type="number" value="{{ perfil.meta_kcal }}" required>
+          </label>
+          <label style="width: 110px;">
+            <span>Proteína (g)</span>
+            <input name="meta_proteina" type="number" value="{{ perfil.meta_proteina }}" required>
+          </label>
+          <label style="width: 110px;">
+            <span>Carbos (g)</span>
+            <input name="meta_carbos" type="number" value="{{ perfil.meta_carbos }}" required>
+          </label>
+          <label style="width: 110px;">
+            <span>Grasa (g)</span>
+            <input name="meta_grasa" type="number" value="{{ perfil.meta_grasa }}" required>
+          </label>
+          <label style="width: 120px;">
+            <span>Meta agua (ml)</span>
+            <input name="meta_agua_ml" type="number" step="250" value="{{ perfil.meta_agua_ml }}" required>
+          </label>
+          <button class="primary">Actualizar objetivos</button>
+        </form>
+      </div>
+    </details>
+  </div>
+
+  <!-- COLUMNA LATERAL: HISTORIAL MENSUAL -->
+  <div class="side-column">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Días anteriores del mes</h2>
+      </div>
+      {% if historial %}
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th class="num">kcal</th>
+              <th class="num">Prot</th>
+              <th class="num">Carb</th>
+              <th class="num">Grasa</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in historial %}
+            <tr>
+              <td style="font-weight: 500;">{{ h.fecha.strftime('%d/%m') }}</td>
+              <td class="num" style="font-weight: 600;">{{ '%.0f'|format(h.kcal) }}</td>
+              <td class="num">{{ '%.1f'|format(h.proteina) }}g</td>
+              <td class="num">{{ '%.1f'|format(h.carbohidratos) }}g</td>
+              <td class="num">{{ '%.1f'|format(h.grasa) }}g</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <p>No hay historial acumulado para este mes.<br><span style="font-size: 11px; color: var(--text-subtle);">Se reinicia al inicio de cada mes.</span></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const inputAlimento = document.getElementById("input-alimento");
+  const dropdown = document.getElementById("dropdown-alimentos");
+  const inputCantidad = document.getElementById("input-cantidad");
+  const labelCantidad = document.getElementById("label-cantidad");
+  const infoPill = document.getElementById("alimento-info-pill");
+  const infoUnidad = document.getElementById("info-unidad-nombre");
+  const infoGramos = document.getElementById("info-gramos-ref");
+  const modoPorcion = document.getElementById("modo-porcion");
+  const modoGramos = document.getElementById("modo-gramos");
+  const lblModoPorcion = document.getElementById("lbl-modo-porcion");
+
+  let alimentoActual = null;
+
+  // 1. Borrado automático al hacer clic o recibir foco
+  inputAlimento.addEventListener("focus", () => {
+    inputAlimento.value = "";
+    dropdown.style.display = "none";
+  });
+
+  inputAlimento.addEventListener("click", () => {
+    if (inputAlimento.value) {
+      inputAlimento.value = "";
+      dropdown.style.display = "none";
+    }
+  });
+
+  // 2. Búsqueda asíncrona
+  let timer = null;
+  inputAlimento.addEventListener("input", () => {
+    clearTimeout(timer);
+    const q = inputAlimento.value.trim();
+    if (q.length < 2) {
+      dropdown.style.display = "none";
+      return;
+    }
+
+    timer = setTimeout(async () => {
+      try {
+        const resp = await fetch("{{ url_for('buscar_alimento') }}?q=" + encodeURIComponent(q));
+        const items = await resp.json();
+        if (!items || items.length === 0) {
+          dropdown.style.display = "none";
+          return;
+        }
+
+        dropdown.innerHTML = "";
+        items.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "dropdown-item";
+          div.innerHTML = `
+            <div>
+              <strong>${item.nombre}</strong>
+              <small>${item.categoria || ''} &bull; 1 ${item.unidad} &approx; ${item.gramos_unidad}g</small>
+            </div>
+            <span class="badge">${item.kcal} kcal</span>
+          `;
+          div.addEventListener("click", () => {
+            seleccionarAlimento(item);
+          });
+          dropdown.appendChild(div);
+        });
+        dropdown.style.display = "block";
+      } catch (err) {
+        console.error(err);
+      }
+    }, 180);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!inputAlimento.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.style.display = "none";
+    }
+  });
+
+  // 3. Selección y configuración de unidad
+  function seleccionarAlimento(item) {
+    alimentoActual = item;
+    inputAlimento.value = item.nombre;
+    dropdown.style.display = "none";
+
+    const unidad = item.unidad || "unidad";
+    const gramos = item.gramos_unidad || 100;
+
+    infoUnidad.textContent = `1 ${unidad}`;
+    infoGramos.textContent = `${gramos}`;
+    infoPill.style.display = "block";
+    lblModoPorcion.textContent = `${unidad.charAt(0).toUpperCase() + unidad.slice(1)}(es)`;
+
+    actualizarEtiquetaCantidad();
+  }
+
+  function actualizarEtiquetaCantidad() {
+    if (!alimentoActual) {
+      labelCantidad.textContent = modoPorcion.checked ? "Cantidad (porciones)" : "Cantidad (g)";
+      return;
+    }
+    const unidad = alimentoActual.unidad || "unidad";
+    if (modoPorcion.checked) {
+      labelCantidad.textContent = `Cantidad en ${unidad}(es)`;
+      if (inputCantidad.value > 100) inputCantidad.value = 1;
+    } else {
+      labelCantidad.textContent = "Gramos (g)";
+      if (inputCantidad.value <= 5) inputCantidad.value = alimentoActual.gramos_unidad || 100;
+    }
+  }
+
+  modoPorcion.addEventListener("change", actualizarEtiquetaCantidad);
+  modoGramos.addEventListener("change", actualizarEtiquetaCantidad);
+});
+</script>
+
+{% endblock %}

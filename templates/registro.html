@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block c %}
+<div style="max-width: 420px; margin: 40px auto 0;">
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Crear cuenta</h2>
+      <span class="card-subtitle">Registro de nuevo usuario</span>
+    </div>
+
+    {% if err %}
+    <div class="alert-message error">
+      {{ err }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('registro') }}">
+      <div style="display: grid; gap: 14px;">
+        <label>
+          <span>Nombre completo</span>
+          <input name="nombre" placeholder="Ej. Juan Pérez" autocomplete="name" required autofocus>
+        </label>
+        <label>
+          <span>Correo electrónico</span>
+          <input name="email" type="email" placeholder="tu@correo.com" autocomplete="email" required>
+        </label>
+        <label>
+          <span>Contraseña</span>
+          <input name="password" type="password" minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required>
+        </label>
+        <button class="primary" style="width: 100%; padding: 9px; margin-top: 6px;">Crear cuenta</button>
+      </div>
+    </form>
+
+    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-divider); font-size: 12.5px; text-align: center; color: var(--text-muted);">
+      ¿Ya tienes una cuenta? <a href="{{ url_for('login') }}" style="color: var(--text-primary); font-weight: 600; text-decoration: none;">Iniciar sesión</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
