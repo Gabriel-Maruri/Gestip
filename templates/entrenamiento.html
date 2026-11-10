@@ -91,12 +91,6 @@
                   <input type="hidden" name="vista" value="{{ vista or '' }}">
                   <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
                   
-                  <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 8px;">
-                    <button class="primary" style="padding: 2px 9px; font-size: 11px;">
-                      Confirmar días
-                    </button>
-                  </div>
-                  
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px; flex-wrap: wrap;">
                     {% for dia_sem in dias_semana_nombres %}
                     {% set is_sel = dia_sem in d_info.dias_lista %}
@@ -119,6 +113,12 @@
                       <span>{{ dia_sem[:3] }}</span>
                     </label>
                     {% endfor %}
+                  </div>
+
+                  <div style="display: flex; justify-content: center; align-items: center; margin-top: 10px;">
+                    <button class="primary" style="padding: 2px 9px; font-size: 11px;">
+                      Confirmar días
+                    </button>
                   </div>
                 </form>
               </div>
