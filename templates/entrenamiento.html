@@ -17,68 +17,146 @@
   <!-- COLUMNA PRINCIPAL: RUTINAS, SERIES Y SOBRECARGA PROGRESIVA -->
   <div class="main-column">
     <div class="card">
-      <div class="card-header">
-        <h2 class="card-title">Rutina de entrenamiento y series activas</h2>
-        <span class="card-subtitle">{{ secciones.values()|map('length')|sum }} ejercicios configurados</span>
+      <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h2 class="card-title">Rutina de entrenamiento y series activas</h2>
+          <span class="card-subtitle">{{ secciones.values()|map('length')|sum }} ejercicios configurados</span>
+        </div>
+
+        <!-- FILTROS DE VISTA Y SELECTOR DE PLANTILLAS -->
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <a href="{{ url_for('entrenamiento', vista='todos', mes=mes) }}" 
+             class="badge {{ 'primary' if vista != 'hoy' and not plantilla_id else '' }}" 
+             style="text-decoration: none; padding: 5px 10px;">
+            Todas las plantillas
+          </a>
+          <a href="{{ url_for('entrenamiento', vista='hoy', mes=mes) }}" 
+             class="badge {{ 'primary' if vista == 'hoy' else '' }}" 
+             style="text-decoration: none; padding: 5px 10px;">
+            Ver entrenamiento de hoy ({{ dia_hoy_nombre }})
+          </a>
+
+          {% if dias %}
+          <select onchange="window.location.href=this.value" class="sec" style="font-size: 11.5px; padding: 4px 8px; border-radius: var(--radius-xs);">
+            <option value="{{ url_for('entrenamiento', vista='todos', mes=mes) }}">Filtrar por plantilla...</option>
+            {% for d in dias %}
+            <option value="{{ url_for('entrenamiento', plantilla_id=d.id, mes=mes) }}" {{ 'selected' if plantilla_id == d.id|string }}>
+              {{ d.nombre }}
+            </option>
+            {% endfor %}
+          </select>
+          {% endif %}
+        </div>
       </div>
 
-      <!-- Grupos de rutina por día -->
+      <!-- Grupos de rutina por día / plantilla con menú desplegable -->
       {% for nombre, lista in secciones.items() %}
-      <div class="rutina-group">
-        <div class="rutina-group-header">
-          <span>{{ nombre }}</span>
-          <span class="badge primary">{{ lista|length }} ejercicios</span>
-        </div>
-
-        {% for e in lista %}
-        <div class="exercise-item">
-          <div class="exercise-main-row">
-            <div>
-              <span style="font-weight: 600; font-size: 13.5px;">{{ e.nombre }}</span>
-              <span class="badge" style="margin-left: 6px;">Objetivo: {{ e.series }} × {{ e.repeticiones }}</span>
-              {% if e.pr_peso and e.pr_peso > 0 %}
-              <span class="badge pr" title="Récord personal histórico">PR: {{ '%.1f'|format(e.pr_peso) }} kg</span>
-              {% endif %}
-            </div>
-            <form method="post" action="{{ url_for('del_ejercicio', id=e.id) }}" style="display:inline;">
-              <button class="danger-action" title="Eliminar ejercicio de la rutina">Eliminar</button>
-            </form>
-          </div>
-
-          <!-- Series registradas hoy para este ejercicio -->
-          <div class="series-container">
-            {% if e.series_hoy %}
-            <div class="series-tags">
-              {% for s in e.series_hoy %}
-              <div class="serie-tag">
-                <span><strong>S{{ s.numero_serie }}:</strong> {{ '%.1f'|format(s.peso_kg) }} kg × {{ s.repeticiones }} reps</span>
-                <form method="post" action="{{ url_for('del_serie', id=s.id) }}" style="display:inline; margin:0;">
-                  <button class="danger-action" style="padding: 1px 4px; font-size: 10px;" title="Borrar serie">✕</button>
-                </form>
-              </div>
+      {% set d_info = dias_map.get(nombre) %}
+      <details open class="rutina-template-details" style="margin-bottom: 14px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-surface);">
+        <summary class="rutina-group-header" style="cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-subtle);">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-weight: 700; font-size: 13.5px;">{{ nombre }}</span>
+            {% if d_info and d_info.dias_lista %}
+              {% for d_nom in d_info.dias_lista %}
+              <span class="badge {{ 'primary' if d_nom == dia_hoy_nombre else '' }}" style="font-size: 10.5px;">{{ d_nom }}</span>
               {% endfor %}
-            </div>
             {% endif %}
-
-            <!-- Formulario en línea para registrar serie -->
-            <form method="post" action="{{ url_for('add_serie') }}" class="inline-serie-form">
-              <input type="hidden" name="ejercicio_id" value="{{ e.id }}">
-              <input type="hidden" name="numero_serie" value="{{ e.siguiente_serie }}">
-              
-              <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">
-                Serie {{ e.siguiente_serie }}:
-              </span>
-              <input name="peso_kg" type="number" step="0.5" min="0" placeholder="Peso (kg)" style="width: 85px;" required>
-              <input name="repeticiones" type="number" min="1" value="{{ e.repeticiones }}" placeholder="Reps" style="width: 75px;" required>
-              <button class="sec" style="padding: 4px 10px; font-size: 11.5px;">Registrar serie</button>
-            </form>
           </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="badge primary">{{ lista|length }} ejercicios</span>
+            <span style="font-size: 11px; color: var(--text-muted);">&blacktriangledown;</span>
+          </div>
+        </summary>
+
+        <div style="padding: 12px 14px;">
+          {% if d_info %}
+          <!-- Submenú para asignar días de la semana a esta plantilla -->
+          <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: var(--radius-xs); margin-bottom: 12px; border: 1px solid var(--border-divider);">
+            <details class="linear-disclosure" style="margin: 0;">
+              <summary style="font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer;">
+                Asignar días de la semana a esta plantilla
+              </summary>
+              <form method="post" action="{{ url_for('asignar_dias_rutina', id=d_info.id) }}" style="margin-top: 8px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                  {% for dia_sem in dias_semana_nombres %}
+                  <label style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; cursor: pointer; background: var(--bg-surface); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-light);">
+                    <input type="checkbox" name="dias_semana" value="{{ dia_sem }}" {{ 'checked' if dia_sem in d_info.dias_lista else '' }}>
+                    <span>{{ dia_sem }}</span>
+                  </label>
+                  {% endfor %}
+                </div>
+                <button class="primary" style="padding: 3px 10px; font-size: 11.5px;">Confirmar días</button>
+              </form>
+            </details>
+          </div>
+          {% endif %}
+
+          {% for e in lista %}
+          <div class="exercise-item">
+            <div class="exercise-main-row">
+              <div>
+                <span style="font-weight: 600; font-size: 13.5px;">{{ e.nombre }}</span>
+                <span class="badge" style="margin-left: 6px;">Objetivo: {{ e.series }} × {{ e.repeticiones }}</span>
+                {% if e.pr_peso and e.pr_peso > 0 %}
+                <span class="badge pr" title="Récord personal histórico">PR: {{ '%.1f'|format(e.pr_peso) }} kg</span>
+                {% endif %}
+              </div>
+              <form method="post" action="{{ url_for('del_ejercicio', id=e.id) }}" style="display:inline;">
+                <button class="danger-action" title="Eliminar ejercicio de la rutina">Eliminar</button>
+              </form>
+            </div>
+
+            <!-- Series registradas hoy para este ejercicio -->
+            <div class="series-container">
+              {% if e.series_hoy %}
+              <div class="series-tags">
+                {% for s in e.series_hoy %}
+                <div class="serie-tag">
+                  <span><strong>S{{ s.numero_serie }}:</strong> {{ '%.1f'|format(s.peso_kg) }} kg × {{ s.repeticiones }} reps</span>
+                  <form method="post" action="{{ url_for('del_serie', id=s.id) }}" style="display:inline; margin:0;">
+                    <button class="danger-action" style="padding: 1px 4px; font-size: 10px;" title="Borrar serie">✕</button>
+                  </form>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              <!-- Formulario en línea para registrar serie -->
+              <form method="post" action="{{ url_for('add_serie') }}" class="inline-serie-form">
+                <input type="hidden" name="ejercicio_id" value="{{ e.id }}">
+                <input type="hidden" name="numero_serie" value="{{ e.siguiente_serie }}">
+                
+                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">
+                  Serie {{ e.siguiente_serie }}:
+                </span>
+                <input name="peso_kg" type="number" step="0.5" min="0" placeholder="Peso (kg)" style="width: 85px;" required>
+                <input name="repeticiones" type="number" min="1" value="{{ e.repeticiones }}" placeholder="Reps" style="width: 75px;" required>
+                <button class="sec" style="padding: 4px 10px; font-size: 11.5px;">Registrar serie</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-      </div>
+      </details>
       {% else %}
       <div class="empty-state">
+        {% if vista == 'hoy' %}
+        <p>No tienes una plantilla de entrenamiento programada para hoy (<strong>{{ dia_hoy_nombre }}</strong>).</p>
+        <div style="margin-top: 10px;">
+          <a href="{{ url_for('entrenamiento', vista='todos', mes=mes) }}" class="primary" style="text-decoration: none; padding: 5px 12px; font-size: 12px;">
+            Ver todas las plantillas
+          </a>
+        </div>
+        {% elif plantilla_id %}
+        <p>No se encontraron ejercicios en la plantilla seleccionada.</p>
+        <div style="margin-top: 10px;">
+          <a href="{{ url_for('entrenamiento', vista='todos', mes=mes) }}" class="sec" style="text-decoration: none; padding: 5px 12px; font-size: 12px;">
+            Ver todas las plantillas
+          </a>
+        </div>
+        {% else %}
         <p>No hay ejercicios en la rutina activa. Añade tu primer ejercicio abajo.</p>
+        {% endif %}
       </div>
       {% endfor %}
 

@@ -146,7 +146,8 @@ GROUP BY c.user_id, c.fecha;
 CREATE TABLE IF NOT EXISTS dia_rutina (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
-  nombre TEXT NOT NULL
+  nombre TEXT NOT NULL,
+  dias_semana TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS ejercicio (

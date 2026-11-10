@@ -1,6 +1,7 @@
 import calendar
 import csv
 import io
+import json
 import os
 import secrets
 from datetime import date, timedelta
@@ -60,6 +61,7 @@ MESES = [
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ]
 DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+DIAS_SEMANA_COMPLETO = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 MOMENTOS_DIA = ["Desayuno", "Almuerzo", "Cena", "Snack"]
 
 
@@ -124,14 +126,180 @@ def login_required(f):
 @app.route("/")
 def inicio():
     if g.user:
-        return redirect(url_for("entrenamiento"))
+        return redirect(url_for("general"))
     return redirect(url_for("login"))
+
+
+@app.get("/general")
+@login_required
+def general():
+    uid = g.user["id"]
+    hoy = date.today()
+    modo = request.args.get("modo", "dia")
+    dia_hoy_nombre = DIAS_SEMANA_COMPLETO[hoy.weekday()]
+
+    # 1. Nutrición de hoy
+    tot_nutri = q("""
+        SELECT COALESCE(SUM(a.kcal * c.gramos / 100), 0) AS kcal,
+               COALESCE(SUM(a.proteina * c.gramos / 100), 0) AS proteina,
+               COALESCE(SUM(a.carbohidratos * c.gramos / 100), 0) AS carbohidratos,
+               COALESCE(SUM(a.grasa * c.gramos / 100), 0) AS grasa
+        FROM consumo c
+        JOIN alimento a ON a.id = c.alimento_id
+        WHERE c.user_id = %s AND c.fecha = CURRENT_DATE
+    """, (uid,), one=True) or {"kcal": 0, "proteina": 0, "carbohidratos": 0, "grasa": 0}
+
+    perfil = q("SELECT * FROM perfil_nutricional WHERE user_id = %s", (uid,), one=True) or {
+        "meta_kcal": 2000, "meta_proteina": 140, "meta_carbos": 220, "meta_grasa": 60, "meta_agua_ml": 2000
+    }
+
+    reg_agua = q("SELECT vasos FROM registro_agua WHERE user_id = %s AND fecha = CURRENT_DATE", (uid,), one=True)
+    vasos_agua = reg_agua["vasos"] if reg_agua else 0
+    agua_ml = vasos_agua * 250
+
+    pct_kcal = min(round((float(tot_nutri["kcal"]) / float(perfil["meta_kcal"]) * 100)), 100) if perfil["meta_kcal"] > 0 else 0
+    pct_prot = min(round((float(tot_nutri["proteina"]) / float(perfil["meta_proteina"]) * 100)), 100) if perfil["meta_proteina"] > 0 else 0
+    pct_carb = min(round((float(tot_nutri["carbohidratos"]) / float(perfil["meta_carbos"]) * 100)), 100) if perfil["meta_carbos"] > 0 else 0
+    pct_grasa = min(round((float(tot_nutri["grasa"]) / float(perfil["meta_grasa"]) * 100)), 100) if perfil["meta_grasa"] > 0 else 0
+    pct_agua = min(round((agua_ml / float(perfil["meta_agua_ml"]) * 100)), 100) if perfil["meta_agua_ml"] > 0 else 0
+
+    # 2. Nutrición semanal (Lunes a Domingo)
+    lunes_semana = hoy - timedelta(days=hoy.weekday())
+    domingo_semana = lunes_semana + timedelta(days=6)
+    fechas_semana = [lunes_semana + timedelta(days=i) for i in range(7)]
+
+    consumos_semana = q("""
+        SELECT c.fecha,
+               ROUND(COALESCE(SUM(a.kcal * c.gramos / 100), 0)::numeric, 0) AS kcal,
+               ROUND(COALESCE(SUM(a.proteina * c.gramos / 100), 0)::numeric, 1) AS proteina
+        FROM consumo c
+        JOIN alimento a ON a.id = c.alimento_id
+        WHERE c.user_id = %s AND c.fecha >= %s AND c.fecha <= %s
+        GROUP BY c.fecha
+        ORDER BY c.fecha
+    """, (uid, lunes_semana, domingo_semana))
+    mapa_nutri_semana = {r["fecha"]: r for r in consumos_semana}
+
+    chart_dias_labels = [f"{DIAS[d.weekday()]} {d.strftime('%d')}" for d in fechas_semana]
+    chart_semana_kcal = [float(mapa_nutri_semana.get(d, {}).get("kcal", 0)) for d in fechas_semana]
+    chart_semana_prot = [float(mapa_nutri_semana.get(d, {}).get("proteina", 0)) for d in fechas_semana]
+
+    # 3. Entrenamiento
+    entrenado_hoy = bool(q("SELECT 1 FROM entrenamiento WHERE user_id = %s AND fecha = CURRENT_DATE", (uid,), one=True))
+
+    series_hoy = q("""
+        SELECT COUNT(rs.id) AS total_series,
+               COALESCE(SUM(rs.repeticiones), 0) AS total_reps,
+               COALESCE(SUM(rs.peso_kg * rs.repeticiones), 0) AS volumen_kg
+        FROM registro_serie rs
+        WHERE rs.user_id = %s AND rs.fecha = CURRENT_DATE
+    """, (uid,), one=True) or {"total_series": 0, "total_reps": 0, "volumen_kg": 0}
+
+    plantillas_hoy = q("""
+        SELECT d.id, d.nombre, d.dias_semana, COUNT(e.id) AS num_ejercicios
+        FROM dia_rutina d
+        LEFT JOIN ejercicio e ON e.dia_id = d.id
+        WHERE d.user_id = %s AND d.dias_semana ILIKE %s
+        GROUP BY d.id
+    """, (uid, f"%{dia_hoy_nombre}%"))
+
+    entrenamientos_hechos = set(r["fecha"] for r in q("""
+        SELECT fecha FROM entrenamiento
+        WHERE user_id = %s AND fecha >= %s AND fecha <= %s
+    """, (uid, lunes_semana, domingo_semana)))
+
+    semana_entrenamiento = [
+        {
+            "dia_nombre": DIAS[d.weekday()],
+            "dia_num": d.day,
+            "fecha": d,
+            "hecho": d in entrenamientos_hechos,
+            "es_hoy": d == hoy
+        }
+        for d in fechas_semana
+    ]
+    dias_entrenados_semana = len(entrenamientos_hechos)
+
+    volumen_semanal = q("""
+        SELECT COALESCE(SUM(rs.peso_kg * rs.repeticiones), 0) AS total_volumen,
+               COUNT(rs.id) AS total_series
+        FROM registro_serie rs
+        WHERE rs.user_id = %s AND rs.fecha >= %s AND rs.fecha <= %s
+    """, (uid, lunes_semana, domingo_semana), one=True) or {"total_volumen": 0, "total_series": 0}
+
+    # 4. Finanzas del mes
+    mes_actual = hoy.strftime("%Y-%m")
+    y, m = hoy.year, hoy.month
+    tot_ingresos = float(q("SELECT COALESCE(SUM(monto), 0) AS tot FROM ingreso WHERE user_id = %s AND to_char(fecha, 'YYYY-MM') = %s", (uid, mes_actual), one=True)["tot"])
+    tot_egresos = float(q("SELECT COALESCE(SUM(monto), 0) AS tot FROM egreso WHERE user_id = %s AND to_char(fecha, 'YYYY-MM') = %s", (uid, mes_actual), one=True)["tot"])
+    balance = tot_ingresos - tot_egresos
+
+    total_presupuesto = float(q("SELECT COALESCE(SUM(presupuesto_mensual), 0) AS tot FROM categoria_egreso WHERE user_id = %s", (uid,), one=True)["tot"])
+    pct_presupuesto = min(round((tot_egresos / total_presupuesto * 100)), 100) if total_presupuesto > 0 else 0
+
+    egresos_cat = q("""
+        SELECT c.nombre, COALESCE(SUM(e.monto), 0) AS total
+        FROM categoria_egreso c
+        JOIN egreso e ON e.categoria_id = c.id
+        WHERE c.user_id = %s AND to_char(e.fecha, 'YYYY-MM') = %s
+        GROUP BY c.id, c.nombre
+        ORDER BY total DESC
+    """, (uid, mes_actual))
+    chart_fin_labels = [r["nombre"] for r in egresos_cat]
+    chart_fin_data = [float(r["total"]) for r in egresos_cat]
+
+    ultimos_movimientos = q("""
+        SELECT 'egreso' as tipo, c.nombre as clasificacion, e.concepto, e.monto, e.fecha
+        FROM egreso e
+        JOIN categoria_egreso c ON c.id = e.categoria_id
+        WHERE e.user_id = %s
+        UNION ALL
+        SELECT 'ingreso' as tipo, f.nombre as clasificacion, 'Ingreso recibido' as concepto, i.monto, i.fecha
+        FROM ingreso i
+        JOIN fuente_ingreso f ON f.id = i.fuente_id
+        WHERE i.user_id = %s
+        ORDER BY fecha DESC
+        LIMIT 4
+    """, (uid, uid))
+
+    return render_template(
+        "general.html",
+        hoy=hoy,
+        modo=modo,
+        dia_hoy_nombre=dia_hoy_nombre,
+        tot_nutri=tot_nutri,
+        perfil=perfil,
+        agua_ml=agua_ml,
+        pct_kcal=pct_kcal,
+        pct_prot=pct_prot,
+        pct_carb=pct_carb,
+        pct_grasa=pct_grasa,
+        pct_agua=pct_agua,
+        chart_dias_labels=chart_dias_labels,
+        chart_semana_kcal=chart_semana_kcal,
+        chart_semana_prot=chart_semana_prot,
+        entrenado_hoy=entrenado_hoy,
+        series_hoy=series_hoy,
+        plantillas_hoy=plantillas_hoy,
+        semana_entrenamiento=semana_entrenamiento,
+        dias_entrenados_semana=dias_entrenados_semana,
+        volumen_semanal=volumen_semanal,
+        tot_ingresos=tot_ingresos,
+        tot_egresos=tot_egresos,
+        balance=balance,
+        total_presupuesto=total_presupuesto,
+        pct_presupuesto=pct_presupuesto,
+        chart_fin_labels=chart_fin_labels,
+        chart_fin_data=chart_fin_data,
+        ultimos_movimientos=ultimos_movimientos,
+        mes_nombre=f"{MESES[m-1]} {y}"
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if g.user:
-        return redirect(url_for("entrenamiento"))
+        return redirect(url_for("general"))
 
     err = None
     if request.method == "POST":
@@ -144,7 +312,7 @@ def login():
             session["user_id"] = usuario["id"]
             recordar = request.form.get("recordar") == "1"
             session.permanent = recordar
-            next_url = request.args.get("next") or url_for("entrenamiento")
+            next_url = request.args.get("next") or url_for("general")
             return redirect(next_url)
         else:
             err = "Credenciales incorrectas. Verifica tu correo y contraseña."
@@ -155,7 +323,7 @@ def login():
 @app.route("/registro", methods=["GET", "POST"])
 def registro():
     if g.user:
-        return redirect(url_for("entrenamiento"))
+        return redirect(url_for("general"))
 
     err = None
     if request.method == "POST":
@@ -195,7 +363,7 @@ def registro():
                 session.clear()
                 session["user_id"] = nuevo_id
                 session.permanent = True
-                return redirect(url_for("entrenamiento"))
+                return redirect(url_for("general"))
 
     return render_template("registro.html", err=err)
 
@@ -566,6 +734,7 @@ def alimentacion():
     """, (uid,))
 
     historial = q("SELECT * FROM resumen_diario WHERE fecha < CURRENT_DATE AND user_id = %s ORDER BY fecha DESC", (uid,))
+    categorias_alimentos = q("SELECT DISTINCT categoria FROM alimento ORDER BY categoria")
 
     return render_template(
         "alimentacion.html",
@@ -586,6 +755,7 @@ def alimentacion():
         pct_agua=pct_agua,
         recetas=recetas,
         historial=historial,
+        categorias_alimentos=categorias_alimentos,
         err=request.args.get("err")
     )
 
@@ -709,6 +879,38 @@ def actualizar_agua():
     return redirect(url_for("alimentacion"))
 
 
+@app.post("/alimentacion/alimento/nuevo")
+@login_required
+def nuevo_alimento():
+    f = request.form
+    nombre = f.get("nombre", "").strip()
+    if not nombre:
+        return redirect(url_for("alimentacion"))
+
+    kcal = float(f.get("kcal", 0) or 0)
+    proteina = float(f.get("proteina", 0) or 0)
+    carbos = float(f.get("carbohidratos", 0) or 0)
+    grasa = float(f.get("grasa", 0) or 0)
+    categoria = f.get("categoria", "Otros").strip() or "Otros"
+    unidad = f.get("unidad", "porción").strip() or "porción"
+    gramos_unidad = float(f.get("gramos_unidad", 100) or 100)
+
+    q("""
+        INSERT INTO alimento (nombre, categoria, unidad, gramos_unidad, kcal, proteina, carbohidratos, grasa, fibra, calcio_mg, hierro_mg, potasio_mg, vit_c_mg, vit_a_ug, vit_b12_ug)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 0, 0, 0, 0, 0, 0, 0)
+        ON CONFLICT (nombre) DO UPDATE SET
+            categoria = EXCLUDED.categoria,
+            unidad = EXCLUDED.unidad,
+            gramos_unidad = EXCLUDED.gramos_unidad,
+            kcal = EXCLUDED.kcal,
+            proteina = EXCLUDED.proteina,
+            carbohidratos = EXCLUDED.carbohidratos,
+            grasa = EXCLUDED.grasa
+    """, (nombre, categoria, unidad, gramos_unidad, kcal, proteina, carbos, grasa))
+
+    return redirect(url_for("alimentacion"))
+
+
 @app.post("/alimentacion/receta")
 @login_required
 def add_receta():
@@ -716,22 +918,46 @@ def add_receta():
     f = request.form
     nombre = f.get("nombre", "").strip()
     momento = f.get("momento", "Desayuno")
-    alimento_nombre = f.get("alimento", "").strip()
-    cantidad = float(f.get("cantidad", 1) or 1)
-    modo = f.get("modo", "porcion")
+    if not nombre:
+        return redirect(url_for("alimentacion"))
 
-    if not nombre or not alimento_nombre:
+    items_json = f.get("items_json")
+    consumir_ahora = f.get("consumir_ahora") == "1"
+
+    items_data = []
+    if items_json:
+        try:
+            items_data = json.loads(items_json)
+        except Exception:
+            items_data = []
+    else:
+        # Compatibilidad con formulario individual
+        alimento_nombre = f.get("alimento", "").strip()
+        cantidad = float(f.get("cantidad", 1) or 1)
+        modo = f.get("modo", "porcion")
+        if alimento_nombre:
+            a = q("SELECT id, gramos_unidad FROM alimento WHERE nombre ILIKE %s LIMIT 1", (f"%{alimento_nombre}%",), one=True)
+            if a:
+                gramos = round(cantidad * float(a["gramos_unidad"]), 1) if modo == "porcion" else cantidad
+                items_data.append({
+                    "alimento_id": a["id"],
+                    "gramos": gramos,
+                    "porciones": cantidad if modo == "porcion" else None
+                })
+
+    if not items_data:
         return redirect(url_for("alimentacion"))
 
     rid = q("""
         INSERT INTO receta (user_id, nombre, momento) VALUES (%s, %s, %s) RETURNING id
     """, (uid, nombre, momento), one=True)["id"]
 
-    a = q("SELECT id, gramos_unidad FROM alimento WHERE nombre ILIKE %s LIMIT 1", (f"%{alimento_nombre}%",), one=True)
-    if a:
-        gramos = round(cantidad * float(a["gramos_unidad"]), 1) if modo == "porcion" else cantidad
+    for it in items_data:
         q("INSERT INTO receta_item (receta_id, alimento_id, gramos, porciones) VALUES (%s, %s, %s, %s)",
-          (rid, a["id"], gramos, cantidad if modo == "porcion" else None))
+          (rid, int(it["alimento_id"]), float(it["gramos"]), float(it["porciones"]) if it.get("porciones") else None))
+        if consumir_ahora:
+            q("INSERT INTO consumo (user_id, alimento_id, gramos, porciones, momento, fecha) VALUES (%s, %s, %s, %s, %s, CURRENT_DATE)",
+              (uid, int(it["alimento_id"]), float(it["gramos"]), float(it["porciones"]) if it.get("porciones") else None, momento))
 
     return redirect(url_for("alimentacion"))
 
@@ -766,7 +992,10 @@ def del_receta(id):
 def entrenamiento():
     uid = g.user["id"]
     hoy = date.today()
+    dia_hoy_nombre = DIAS_SEMANA_COMPLETO[hoy.weekday()]
     mes = request.args.get("mes") or hoy.strftime("%Y-%m")
+    vista = request.args.get("vista", "todos")
+    plantilla_id = request.args.get("plantilla_id")
     y, m = map(int, mes.split("-"))
     prev = (date(y, m, 1) - timedelta(days=1)).strftime("%Y-%m")
     nxt = (date(y, m, 28) + timedelta(days=4)).strftime("%Y-%m")
@@ -778,9 +1007,25 @@ def entrenamiento():
     lunes = hoy - timedelta(days=hoy.weekday())
     done = {r["fecha"] for r in q("SELECT fecha FROM entrenamiento WHERE user_id = %s", (uid,))}
 
+    dias_raw = q("SELECT id, nombre, COALESCE(dias_semana, '') AS dias_semana FROM dia_rutina WHERE user_id = %s ORDER BY id", (uid,))
+    dias_info = []
+    dias_map = {}
+    for d in dias_raw:
+        lista = [x.strip() for x in d["dias_semana"].split(",") if x.strip()]
+        es_hoy = dia_hoy_nombre in lista
+        item = {
+            "id": d["id"],
+            "nombre": d["nombre"],
+            "dias_semana": d["dias_semana"],
+            "dias_lista": lista,
+            "es_hoy": es_hoy
+        }
+        dias_info.append(item)
+        dias_map[d["nombre"]] = item
+
     # Ejercicios con su Récord Personal histórico (PR) del usuario
     ejs = q("""
-        SELECT e.*, d.nombre AS dia,
+        SELECT e.*, d.nombre AS dia, d.id AS dia_id,
                (SELECT MAX(peso_kg) FROM registro_serie WHERE ejercicio_id = e.id AND user_id = %s) AS pr_peso
         FROM ejercicio e
         LEFT JOIN dia_rutina d ON d.id = e.dia_id
@@ -803,7 +1048,21 @@ def entrenamiento():
     for e in ejs:
         e["series_hoy"] = series_por_ejercicio.get(e["id"], [])
         e["siguiente_serie"] = len(e["series_hoy"]) + 1
-        secciones.setdefault(e["dia"] or "General", []).append(e)
+        dia_nom = e["dia"] or "General"
+        secciones.setdefault(dia_nom, []).append(e)
+
+    # Filtrado según la vista seleccionada (hoy o plantilla específica)
+    if vista == "hoy":
+        secciones_filtradas = {}
+        for nom, items in secciones.items():
+            info = dias_map.get(nom)
+            if info and info["es_hoy"]:
+                secciones_filtradas[nom] = items
+        secciones = secciones_filtradas
+    elif plantilla_id:
+        p_obj = next((d for d in dias_info if str(d["id"]) == str(plantilla_id)), None)
+        if p_obj and p_obj["nombre"] in secciones:
+            secciones = {p_obj["nombre"]: secciones[p_obj["nombre"]]}
 
     # Historial de sesiones anteriores del usuario
     historial_entrenamientos = q("""
@@ -832,12 +1091,28 @@ def entrenamiento():
         done=done,
         dias_n=DIAS,
         secciones=secciones,
-        dias=q("SELECT * FROM dia_rutina WHERE user_id = %s ORDER BY id", (uid,)),
+        dias=dias_info,
+        dias_map=dias_map,
+        vista=vista,
+        plantilla_id=plantilla_id,
+        dia_hoy_nombre=dia_hoy_nombre,
+        dias_semana_nombres=DIAS_SEMANA_COMPLETO,
         grupo=grupo,
         grupos=q("SELECT DISTINCT grupo FROM catalogo_ejercicio ORDER BY grupo"),
         sugeridos=sugeridos,
         historial_entrenamientos=historial_entrenamientos
     )
+
+
+@app.post("/entrenamiento/dia/<int:id>/dias")
+@login_required
+def asignar_dias_rutina(id):
+    uid = g.user["id"]
+    dias_sel = request.form.getlist("dias_semana")
+    dias_str = ",".join(dias_sel)
+    q("UPDATE dia_rutina SET dias_semana = %s WHERE id = %s AND user_id = %s",
+      (dias_str, id, uid))
+    return redirect(url_for("entrenamiento"))
 
 
 @app.post("/entrenamiento/marcar")

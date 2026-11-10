@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+{% endblock %}
+{% block c %}
+
+<!-- ENCABEZADO Y SELECTOR DE VISTA: DÍA VS SEMANA -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h1 style="font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.02em;">Panel General</h1>
+    <span style="font-size: 12.5px; color: var(--text-muted);">
+      {{ dia_hoy_nombre }}, {{ hoy.strftime('%d de %m de %Y') }} &bull; Vista de {{ 'hoy' if modo == 'dia' else 'la semana' }}
+    </span>
+  </div>
+  <div class="segmented-control" style="background: var(--bg-surface); border: 1px solid var(--border-light); padding: 2px;">
+    <a href="{{ url_for('general', modo='dia') }}" 
+       class="badge {{ 'primary' if modo == 'dia' else '' }}" 
+       style="text-decoration: none; padding: 6px 14px; font-size: 12px;">
+      Resumen de hoy
+    </a>
+    <a href="{{ url_for('general', modo='semana') }}" 
+       class="badge {{ 'primary' if modo == 'semana' else '' }}" 
+       style="text-decoration: none; padding: 6px 14px; font-size: 12px;">
+      Resumen semanal
+    </a>
+  </div>
+</div>
+
+<!-- TARJETAS MÉTRICAS CLAVE -->
+<div class="stats-grid">
+  <!-- 1. NUTRICIÓN -->
+  <div class="stat-box">
+    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+      <div class="stat-label">Nutrición de hoy</div>
+      <a href="{{ url_for('alimentacion') }}" style="font-size: 11px; text-decoration: none; color: var(--text-muted); font-weight: 500;">Ver módulo &rarr;</a>
+    </div>
+    <div class="stat-value">
+      {{ '%.0f'|format(tot_nutri.kcal) }} <span class="stat-unit">/ {{ '%.0f'|format(perfil.meta_kcal) }} kcal</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill {{ 'danger' if pct_kcal > 100 else '' }}" style="width: {{ pct_kcal }}%;"></div>
+      </div>
+      <div class="progress-meta">
+        <span>Proteína: <strong>{{ '%.1f'|format(tot_nutri.proteina) }}g</strong> / {{ '%.0f'|format(perfil.meta_proteina) }}g</span>
+        <span>{{ pct_kcal }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ENTRENAMIENTO -->
+  <div class="stat-box">
+    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+      <div class="stat-label">Entrenamiento</div>
+      <a href="{{ url_for('entrenamiento') }}" style="font-size: 11px; text-decoration: none; color: var(--text-muted); font-weight: 500;">Ver módulo &rarr;</a>
+    </div>
+    <div class="stat-value" style="color: {{ 'var(--success)' if entrenado_hoy else 'var(--text-primary)' }};">
+      {{ 'Sesión registrada ✓' if entrenado_hoy else 'Pendiente hoy' }}
+    </div>
+    <div style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">
+      {% if series_hoy.total_series > 0 %}
+        <span>{{ series_hoy.total_series }} series realizadas &bull; {{ '%.0f'|format(series_hoy.volumen_kg) }} kg volumen</span>
+      {% else %}
+        <span>{{ dias_entrenados_semana }} de 7 días entrenados esta semana</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 3. FINANZAS -->
+  <div class="stat-box">
+    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+      <div class="stat-label">Finanzas ({{ mes_nombre }})</div>
+      <a href="{{ url_for('finanzas') }}" style="font-size: 11px; text-decoration: none; color: var(--text-muted); font-weight: 500;">Ver módulo &rarr;</a>
+    </div>
+    <div class="stat-value" style="color: {{ 'var(--success)' if balance >= 0 else 'var(--danger)' }};">
+      {{ '+' if balance > 0 else '' }}${{ '%.2f'|format(balance) }}
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill {{ 'danger' if pct_presupuesto >= 100 else ('warning' if pct_presupuesto >= 80 else 'success') }}" 
+             style="width: {{ pct_presupuesto }}%;"></div>
+      </div>
+      <div class="progress-meta">
+        <span>Presupuesto usado</span>
+        <span>{{ pct_presupuesto }}%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if modo == 'semana' %}
+<!-- =========================================================================
+     VISTA SEMANAL: GRÁFICAS DE EVOLUCIÓN NUTRICIONAL Y FINANCIERA
+     ========================================================================= -->
+<div class="dashboard-grid-even">
+  <!-- COLUMNA IZQUIERDA: GRÁFICA NUTRICIÓN SEMANAL -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Calorías consumidas en la semana</h2>
+      <span class="card-subtitle">Lunes a Domingo</span>
+    </div>
+    <div style="height: 240px; position: relative;">
+      <canvas id="chart-semana-nutricion"></canvas>
+    </div>
+  </div>
+
+  <!-- COLUMNA DERECHA: DISTRIBUCIÓN DE EGRESOS -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Distribución de gastos del mes</h2>
+      <span class="card-subtitle">Egresos por categoría</span>
+    </div>
+    {% if chart_fin_data %}
+    <div style="height: 240px; position: relative;">
+      <canvas id="chart-semana-finanzas"></canvas>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>No hay egresos registrados en el período activo para generar la gráfica.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- CUMPLIMIENTO SEMANAL DE ENTRENAMIENTO -->
+<div class="card" style="margin-top: 16px;">
+  <div class="card-header">
+    <h2 class="card-title">Consistencia de entrenamiento semanal</h2>
+    <span class="card-subtitle">{{ dias_entrenados_semana }} días completados &bull; {{ '%.0f'|format(volumen_semanal.total_volumen) }} kg levantados</span>
+  </div>
+  <div class="semana-pills">
+    {% for s in semana_entrenamiento %}
+    <div class="semana-pill-day {{ 'hoy' if s.es_hoy else '' }}">
+      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">
+        {{ s.dia_nombre }}
+      </div>
+      <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 4px auto; font-weight: 700; font-size: 13px; background: {{ 'var(--success-bg)' if s.hecho else 'var(--bg-subtle)' }}; color: {{ 'var(--success)' if s.hecho else 'var(--text-muted)' }}; border: 1px solid {{ 'var(--success-border)' if s.hecho else 'var(--border-light)' }};">
+        {{ '✓' if s.hecho else s.dia_num }}
+      </div>
+      <div style="font-size: 10px; color: var(--text-subtle);">
+        {{ 'Listo' if s.hecho else 'Descanso' }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% else %}
+<!-- =========================================================================
+     VISTA DEL DÍA: ENFOQUE OPERATIVO EN ACCIONES DE HOY
+     ========================================================================= -->
+<div class="dashboard-grid">
+  <!-- COLUMNA PRINCIPAL: ENTRENAMIENTO DE HOY Y NUTRICIÓN -->
+  <div class="main-column">
+    <!-- PLANTILLA DE HOY -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Rutina programada para hoy ({{ dia_hoy_nombre }})</h2>
+        <a href="{{ url_for('entrenamiento', vista='hoy') }}" class="badge primary" style="text-decoration: none;">Ver rutina completa &rarr;</a>
+      </div>
+
+      {% if plantillas_hoy %}
+        {% for p in plantillas_hoy %}
+        <div class="rutina-group" style="margin-bottom: 10px;">
+          <div class="rutina-group-header">
+            <span style="font-weight: 600;">{{ p.nombre }}</span>
+            <span class="badge">{{ p.num_ejercicios }} ejercicios asignados</span>
+          </div>
+          <div style="padding: 10px 14px; font-size: 12.5px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center;">
+            <span>Días programados: <strong>{{ p.dias_semana }}</strong></span>
+            <a href="{{ url_for('entrenamiento', vista='hoy') }}" class="primary" style="padding: 4px 10px; font-size: 11.5px; text-decoration: none; border-radius: 4px;">
+              Registrar series
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state" style="padding: 16px;">
+          <p>No tienes una plantilla asignada para el {{ dia_hoy_nombre }}.</p>
+          <div style="margin-top: 8px;">
+            <a href="{{ url_for('entrenamiento') }}" class="sec" style="text-decoration: none; padding: 4px 10px; font-size: 12px;">
+              Configurar días en Entrenamiento
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- RESUMEN DE MACRONUTRIENTES DEL DÍA -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Macronutrientes acumulados hoy</h2>
+        <a href="{{ url_for('alimentacion') }}" class="badge" style="text-decoration: none;">+ Registrar alimento</a>
+      </div>
+      <div class="stats-grid" style="margin-bottom: 0;">
+        <div style="padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: var(--bg-surface);">
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Proteína</div>
+          <div style="font-size: 16px; font-weight: 700; color: var(--success); margin: 2px 0;">
+            {{ '%.1f'|format(tot_nutri.proteina) }}g
+          </div>
+          <div style="font-size: 10.5px; color: var(--text-subtle);">Meta: {{ '%.0f'|format(perfil.meta_proteina) }}g ({{ pct_prot }}%)</div>
+        </div>
+        <div style="padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: var(--bg-surface);">
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Carbohidratos</div>
+          <div style="font-size: 16px; font-weight: 700; margin: 2px 0;">
+            {{ '%.1f'|format(tot_nutri.carbohidratos) }}g
+          </div>
+          <div style="font-size: 10.5px; color: var(--text-subtle);">Meta: {{ '%.0f'|format(perfil.meta_carbos) }}g ({{ pct_carb }}%)</div>
+        </div>
+        <div style="padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: var(--bg-surface);">
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Grasa</div>
+          <div style="font-size: 16px; font-weight: 700; margin: 2px 0;">
+            {{ '%.1f'|format(tot_nutri.grasa) }}g
+          </div>
+          <div style="font-size: 10.5px; color: var(--text-subtle);">Meta: {{ '%.0f'|format(perfil.meta_grasa) }}g ({{ pct_grasa }}%)</div>
+        </div>
+        <div style="padding: 10px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: var(--bg-surface);">
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Agua</div>
+          <div style="font-size: 16px; font-weight: 700; color: #0284c7; margin: 2px 0;">
+            {{ agua_ml }} ml
+          </div>
+          <div style="font-size: 10.5px; color: var(--text-subtle);">Meta: {{ perfil.meta_agua_ml }} ml ({{ pct_agua }}%)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUMNA LATERAL: MOVIMIENTOS RECIENTES -->
+  <div class="side-column">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Últimos movimientos</h2>
+        <a href="{{ url_for('finanzas') }}" class="badge" style="text-decoration: none;">Ver finanzas</a>
+      </div>
+      {% if ultimos_movimientos %}
+      <div class="table-responsive">
+        <table>
+          <tbody>
+            {% for m in ultimos_movimientos %}
+            <tr>
+              <td>
+                <div style="font-weight: 500; font-size: 12.5px;">{{ m.clasificacion }}</div>
+                <div style="font-size: 10.5px; color: var(--text-muted);">{{ m.fecha.strftime('%d/%m') }} &bull; {{ m.concepto }}</div>
+              </td>
+              <td class="num" style="font-weight: 600; font-size: 13px; color: {{ 'var(--success)' if m.tipo == 'ingreso' else 'var(--danger)' }};">
+                {{ '+' if m.tipo == 'ingreso' else '-' }}${{ '%.2f'|format(m.monto) }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding: 16px;">
+        <p>No hay movimientos financieros recientes.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- CALENDARIO DE LA SEMANA ACTUAL -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Días activos esta semana</h2>
+      </div>
+      <div style="display: flex; justify-content: space-between; text-align: center; gap: 4px;">
+        {% for s in semana_entrenamiento %}
+        <div style="flex: 1; padding: 6px 2px; border-radius: 4px; background: {{ 'var(--success-bg)' if s.hecho else ( 'var(--bg-subtle)' if s.es_hoy else 'transparent' ) }}; border: 1px solid {{ 'var(--success-border)' if s.hecho else ( 'var(--border-focus)' if s.es_hoy else 'var(--border-divider)' ) }};">
+          <div style="font-size: 10px; font-weight: 600; color: var(--text-muted);">{{ s.dia_nombre }}</div>
+          <div style="font-size: 12px; font-weight: 700; color: {{ 'var(--success)' if s.hecho else 'var(--text-primary)' }};">
+            {{ '✓' if s.hecho else s.dia_num }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if modo == 'semana' %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Gráfico de Nutrición Semanal (Barras de Kcal vs Meta)
+  const ctxNutri = document.getElementById("chart-semana-nutricion");
+  if (ctxNutri) {
+    new Chart(ctxNutri, {
+      type: "bar",
+      data: {
+        labels: {{ chart_dias_labels|tojson }},
+        datasets: [
+          {
+            label: "Consumido (kcal)",
+            data: {{ chart_semana_kcal|tojson }},
+            backgroundColor: "#0f172a",
+            borderRadius: 4,
+            barThickness: 24
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.raw} kcal`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (v) => v + " kcal",
+              font: { size: 10.5 }
+            },
+            grid: { color: "#f3f4f6" }
+          }
+        }
+      }
+    });
+  }
+
+  // Gráfico de Finanzas Semanal/Mensual (Dona)
+  const ctxFin = document.getElementById("chart-semana-finanzas");
+  if (ctxFin && {{ chart_fin_data|tojson }}.length > 0) {
+    const totalGasto = {{ tot_egresos }};
+    new Chart(ctxFin, {
+      type: "doughnut",
+      data: {
+        labels: {{ chart_fin_labels|tojson }},
+        datasets: [{
+          data: {{ chart_fin_data|tojson }},
+          backgroundColor: [
+            "#0f172a", "#334155", "#64748b", "#94a3b8",
+            "#cbd5e1", "#dc2626", "#ea580c", "#d97706", "#059669"
+          ],
+          borderWidth: 1.5,
+          borderColor: "#ffffff"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { boxWidth: 10, font: { size: 11 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const val = ctx.raw || 0;
+                const pct = totalGasto > 0 ? ((val / totalGasto) * 100).toFixed(1) : 0;
+                return ` ${ctx.label}: $${val.toFixed(2)} (${pct}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endif %}
+
+{% endblock %}

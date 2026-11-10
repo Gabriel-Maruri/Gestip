@@ -27,7 +27,7 @@
 
     {% if g.user %}
     <div class="nav-links">
-      {% for ep, t in [('entrenamiento','Entrenamiento'), ('alimentacion','Alimentación'), ('finanzas','Finanzas')] %}
+      {% for ep, t in [('general','General'), ('finanzas','Finanzas'), ('entrenamiento','Entrenamiento'), ('alimentacion','Alimentación')] %}
       <a href="{{ url_for(ep) }}" class="{{ 'on' if request.endpoint == ep }}">{{ t }}</a>
       {% endfor %}
     </div>

@@ -254,9 +254,9 @@
       {% endif %}
     </div>
 
-    <!-- RECETAS Y PLATOS FRECUENTES -->
+    <!-- JUNTAR COMIDAS / PLATOS FRECUENTES Y RECETAS COMPUESTAS -->
     <details class="linear-disclosure">
-      <summary>Platos frecuentes y recetas compuestas</summary>
+      <summary>Juntar comidas / Platos frecuentes y recetas compuestas</summary>
       <div class="disclosure-content">
         {% if recetas %}
         <div class="table-responsive" style="margin-bottom: 16px;">
@@ -281,7 +281,7 @@
                 <td class="num">{{ '%.1f'|format(r.prot) }} g</td>
                 <td style="text-align: right;">
                   <form method="post" action="{{ url_for('consumir_receta', id=r.id) }}" style="display:inline;">
-                    <button class="primary" style="padding: 2px 7px; font-size: 11px;">Consumir</button>
+                    <button class="primary" style="padding: 2px 7px; font-size: 11px;">Consumir hoy</button>
                   </form>
                   <form method="post" action="{{ url_for('del_receta', id=r.id) }}" style="display:inline; margin-left: 4px;">
                     <button class="danger-action" style="padding: 2px 6px; font-size: 11px;">✕</button>
@@ -293,32 +293,122 @@
           </table>
         </div>
         {% else %}
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">No tienes platos guardados. Guarda tus combinaciones frecuentes para agregarlas en un clic.</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">No tienes platos guardados. Agrupa comidas frecuentes para sumarlas y registrarlas en un solo clic.</p>
         {% endif %}
 
-        <!-- Guardar nuevo plato -->
-        <form method="post" action="{{ url_for('add_receta') }}" class="form-row">
-          <label style="flex: 1.5; min-width: 160px;">
-            <span>Nombre del plato / receta</span>
-            <input name="nombre" placeholder="Ej. Desayuno habitual" required>
+        <!-- Creador interactivo de plato / junta de comidas -->
+        <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 14px;">
+          <h4 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700;">Juntar comidas en un plato nuevo</h4>
+          
+          <div class="form-row" style="margin-bottom: 10px;">
+            <label style="flex: 1.5; min-width: 160px;">
+              <span>Nombre del plato combinado</span>
+              <input id="receta-nombre" placeholder="Ej. Almuerzo Proteico o Batido Mañanero" required>
+            </label>
+            <label style="width: 130px;">
+              <span>Momento</span>
+              <select id="receta-momento">
+                {% for m in momentos %}
+                <option value="{{ m }}">{{ m }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+
+          <!-- Buscador y selector de alimentos para ir sumando -->
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; background: var(--bg-surface); padding: 10px; border-radius: 4px; border: 1px solid var(--border-divider);">
+            <div style="flex: 2; min-width: 180px; position: relative;">
+              <label>
+                <span>Añadir alimento al plato</span>
+                <input id="receta-alimento-input" placeholder="Buscar alimento en el catálogo..." autocomplete="off">
+              </label>
+              <div id="receta-alimento-dropdown" class="dropdown-results"></div>
+            </div>
+            <div style="width: 95px;">
+              <label>
+                <span>Gramos (g)</span>
+                <input id="receta-gramos-input" type="number" step="5" min="1" value="100">
+              </label>
+            </div>
+            <button type="button" id="btn-receta-add-item" class="sec" style="margin-bottom: 1px; padding: 6px 12px;">
+              + Sumar alimento
+            </button>
+          </div>
+
+          <!-- Lista de ingredientes acumulados -->
+          <div id="receta-lista-ingredientes" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+            <p id="receta-empty-hint" style="font-size: 11.5px; color: var(--text-muted); margin: 0;">
+              Busca y añade alimentos arriba para armar el plato.
+            </p>
+          </div>
+
+          <!-- Resumen nutricional acumulado en tiempo real -->
+          <div id="receta-totales-bar" style="display: none; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: 4px; padding: 8px 12px; margin-bottom: 12px; justify-content: space-between; align-items: center; font-size: 12px; flex-wrap: wrap; gap: 8px;">
+            <span style="font-weight: 600;">Total del plato:</span>
+            <div style="display: flex; gap: 10px; font-weight: 600;">
+              <span><strong id="receta-tot-kcal">0</strong> kcal</span>
+              <span style="color: var(--success);"><strong id="receta-tot-prot">0</strong>g prot</span>
+              <span><strong id="receta-tot-carb">0</strong>g carb</span>
+              <span><strong id="receta-tot-grasa">0</strong>g grasa</span>
+            </div>
+          </div>
+
+          <!-- Formulario de envío final -->
+          <form method="post" action="{{ url_for('add_receta') }}" id="form-guardar-receta">
+            <input type="hidden" name="nombre" id="receta-hidden-nombre">
+            <input type="hidden" name="momento" id="receta-hidden-momento">
+            <input type="hidden" name="items_json" id="receta-hidden-json">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; user-select: none;">
+                <input type="checkbox" name="consumir_ahora" value="1" checked>
+                <span>Registrar también como comida consumida hoy</span>
+              </label>
+              <button type="submit" class="primary">Guardar plato</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </details>
+
+    <!-- CREAR ALIMENTO PERSONALIZADO (SOLO DATOS ESENCIALES) -->
+    <details class="linear-disclosure">
+      <summary>Crear alimento personalizado en el catálogo</summary>
+      <div class="disclosure-content">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Añade nuevos alimentos a tu base de datos indicando únicamente los datos esenciales por cada 100 gramos (sin necesidad de vitaminas ni minerales).
+        </p>
+        <form method="post" action="{{ url_for('nuevo_alimento') }}" class="form-row">
+          <label style="flex: 2; min-width: 180px;">
+            <span>Nombre del alimento</span>
+            <input name="nombre" placeholder="Ej. Proteína Whey Chocolate o Arepa con queso" required>
           </label>
-          <label style="width: 120px;">
-            <span>Momento</span>
-            <select name="momento">
-              {% for m in momentos %}
-              <option value="{{ m }}">{{ m }}</option>
+          <label style="width: 105px;">
+            <span>Calorías (kcal)</span>
+            <input name="kcal" type="number" step="0.5" min="0" placeholder="100g" required>
+          </label>
+          <label style="width: 105px;">
+            <span>Proteína (g)</span>
+            <input name="proteina" type="number" step="0.1" min="0" placeholder="100g" required>
+          </label>
+          <label style="width: 95px;">
+            <span>Carbos (g)</span>
+            <input name="carbohidratos" type="number" step="0.1" min="0" value="0">
+          </label>
+          <label style="width: 90px;">
+            <span>Grasa (g)</span>
+            <input name="grasa" type="number" step="0.1" min="0" value="0">
+          </label>
+          <label style="flex: 1; min-width: 140px;">
+            <span>Categoría</span>
+            <select name="categoria">
+              <option value="Otros">Otros</option>
+              {% for c in categorias_alimentos %}
+              <option value="{{ c.categoria }}">{{ c.categoria }}</option>
               {% endfor %}
             </select>
           </label>
-          <label style="flex: 2; min-width: 180px;">
-            <span>Ingrediente inicial</span>
-            <input name="alimento" placeholder="Buscar alimento para la receta..." required>
-          </label>
-          <label style="width: 90px;">
-            <span>Porciones</span>
-            <input name="cantidad" type="number" step="0.5" value="1" required>
-          </label>
-          <button class="sec">Guardar plato</button>
+          <button class="primary">Guardar alimento</button>
         </form>
       </div>
     </details>
@@ -504,6 +594,179 @@ document.addEventListener("DOMContentLoaded", () => {
 
   modoPorcion.addEventListener("change", actualizarEtiquetaCantidad);
   modoGramos.addEventListener("change", actualizarEtiquetaCantidad);
+
+  // =========================================================================
+  // LÓGICA DEL CREADOR INTERACTIVO DE PLATOS / JUNTAR COMIDAS
+  // =========================================================================
+  const recetaAlimentoInput = document.getElementById("receta-alimento-input");
+  const recetaAlimentoDropdown = document.getElementById("receta-alimento-dropdown");
+  const recetaGramosInput = document.getElementById("receta-gramos-input");
+  const btnRecetaAddItem = document.getElementById("btn-receta-add-item");
+  const recetaListaIngredientes = document.getElementById("receta-lista-ingredientes");
+  const recetaEmptyHint = document.getElementById("receta-empty-hint");
+  const recetaTotalesBar = document.getElementById("receta-totales-bar");
+  const recetaTotKcal = document.getElementById("receta-tot-kcal");
+  const recetaTotProt = document.getElementById("receta-tot-prot");
+  const recetaTotCarb = document.getElementById("receta-tot-carb");
+  const recetaTotGrasa = document.getElementById("receta-tot-grasa");
+  const formGuardarReceta = document.getElementById("form-guardar-receta");
+
+  let recetaAlimentoActual = null;
+  let recetaItems = [];
+
+  let timerReceta = null;
+  if (recetaAlimentoInput) {
+    recetaAlimentoInput.addEventListener("input", () => {
+      clearTimeout(timerReceta);
+      const q = recetaAlimentoInput.value.trim();
+      if (q.length < 2) {
+        recetaAlimentoDropdown.style.display = "none";
+        return;
+      }
+      timerReceta = setTimeout(async () => {
+        try {
+          const resp = await fetch("{{ url_for('buscar_alimento') }}?q=" + encodeURIComponent(q));
+          const items = await resp.json();
+          if (!items || items.length === 0) {
+            recetaAlimentoDropdown.style.display = "none";
+            return;
+          }
+          recetaAlimentoDropdown.innerHTML = "";
+          items.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "dropdown-item";
+            div.innerHTML = `
+              <div>
+                <strong>${item.nombre}</strong>
+                <small>${item.categoria || ''} &bull; 100g: ${item.kcal} kcal, ${item.proteina}g prot</small>
+              </div>
+              <span class="badge">${item.kcal} kcal</span>
+            `;
+            div.addEventListener("click", () => {
+              recetaAlimentoActual = item;
+              recetaAlimentoInput.value = item.nombre;
+              recetaAlimentoDropdown.style.display = "none";
+              recetaGramosInput.focus();
+            });
+            recetaAlimentoDropdown.appendChild(div);
+          });
+          recetaAlimentoDropdown.style.display = "block";
+        } catch (e) {
+          console.error(e);
+        }
+      }, 180);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!recetaAlimentoInput.contains(e.target) && !recetaAlimentoDropdown.contains(e.target)) {
+        recetaAlimentoDropdown.style.display = "none";
+      }
+    });
+
+    btnRecetaAddItem.addEventListener("click", () => {
+      if (!recetaAlimentoActual) {
+        alert("Por favor busca y selecciona un alimento del catálogo primero.");
+        recetaAlimentoInput.focus();
+        return;
+      }
+      const gramos = parseFloat(recetaGramosInput.value) || 100;
+      if (gramos <= 0) {
+        alert("Ingresa una cantidad mayor a 0 gramos.");
+        return;
+      }
+
+      const factor = gramos / 100;
+      const kcalItem = Math.round(recetaAlimentoActual.kcal * factor);
+      const protItem = +(recetaAlimentoActual.proteina * factor).toFixed(1);
+      const carbItem = +(recetaAlimentoActual.carbohidratos * factor).toFixed(1);
+      const grasaItem = +(recetaAlimentoActual.grasa * factor).toFixed(1);
+
+      recetaItems.push({
+        alimento_id: recetaAlimentoActual.id,
+        nombre: recetaAlimentoActual.nombre,
+        gramos: gramos,
+        kcal: kcalItem,
+        proteina: protItem,
+        carbohidratos: carbItem,
+        grasa: grasaItem
+      });
+
+      recetaAlimentoActual = null;
+      recetaAlimentoInput.value = "";
+      recetaGramosInput.value = "100";
+      actualizarListaReceta();
+    });
+  }
+
+  function actualizarListaReceta() {
+    if (recetaItems.length === 0) {
+      recetaEmptyHint.style.display = "block";
+      recetaTotalesBar.style.display = "none";
+      recetaListaIngredientes.innerHTML = "";
+      recetaListaIngredientes.appendChild(recetaEmptyHint);
+      return;
+    }
+
+    recetaEmptyHint.style.display = "none";
+    recetaTotalesBar.style.display = "flex";
+    recetaListaIngredientes.innerHTML = "";
+
+    let totKcal = 0, totProt = 0, totCarb = 0, totGrasa = 0;
+
+    recetaItems.forEach((it, index) => {
+      totKcal += it.kcal;
+      totProt += it.proteina;
+      totCarb += it.carbohidratos;
+      totGrasa += it.grasa;
+
+      const row = document.createElement("div");
+      row.style = "display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); border: 1px solid var(--border-divider); padding: 6px 10px; border-radius: 4px; font-size: 12px;";
+      row.innerHTML = `
+        <div>
+          <strong>${it.nombre}</strong>
+          <span style="color: var(--text-muted); margin-left: 6px;">${it.gramos}g &bull; ${it.kcal} kcal, ${it.proteina}g prot</span>
+        </div>
+        <button type="button" class="danger-action" style="padding: 1px 6px; font-size: 11px;" title="Quitar ingrediente">✕</button>
+      `;
+      row.querySelector("button").addEventListener("click", () => {
+        recetaItems.splice(index, 1);
+        actualizarListaReceta();
+      });
+      recetaListaIngredientes.appendChild(row);
+    });
+
+    recetaTotKcal.textContent = Math.round(totKcal);
+    recetaTotProt.textContent = totProt.toFixed(1);
+    recetaTotCarb.textContent = totCarb.toFixed(1);
+    recetaTotGrasa.textContent = totGrasa.toFixed(1);
+  }
+
+  if (formGuardarReceta) {
+    formGuardarReceta.addEventListener("submit", (e) => {
+      const nombreInput = document.getElementById("receta-nombre");
+      const momentoInput = document.getElementById("receta-momento");
+      const hiddenNombre = document.getElementById("receta-hidden-nombre");
+      const hiddenMomento = document.getElementById("receta-hidden-momento");
+      const hiddenJson = document.getElementById("receta-hidden-json");
+
+      if (!nombreInput.value.trim()) {
+        e.preventDefault();
+        alert("Por favor ingresa un nombre para el plato.");
+        nombreInput.focus();
+        return false;
+      }
+      if (recetaItems.length === 0) {
+        e.preventDefault();
+        alert("Por favor añade al menos un alimento al plato antes de guardar.");
+        recetaAlimentoInput.focus();
+        return false;
+      }
+
+      hiddenNombre.value = nombreInput.value.trim();
+      hiddenMomento.value = momentoInput.value;
+      hiddenJson.value = JSON.stringify(recetaItems);
+    });
+  }
 });
 </script>
 
