@@ -269,8 +269,11 @@
                 -${{ '%.2f'|format(r.monto) }}
               </td>
               <td style="text-align: right;">
-                <form method="post" action="{{ url_for('del_egreso', id=r.id) }}" style="display:inline;">
-                  <button class="danger-action" title="Eliminar egreso">Eliminar</button>
+                <form method="post" action="{{ url_for('del_egreso', id=r.id) }}" style="display:inline; margin: 0;">
+                  <button class="danger-action btn-del-item" title="Eliminar egreso">
+                    <span class="desktop-only">Eliminar</span>
+                    <span class="mobile-only">✕</span>
+                  </button>
                 </form>
               </td>
             </tr>
@@ -311,8 +314,11 @@
                 +${{ '%.2f'|format(r.monto) }}
               </td>
               <td style="text-align: right;">
-                <form method="post" action="{{ url_for('del_ingreso', id=r.id) }}" style="display:inline;">
-                  <button class="danger-action" title="Eliminar ingreso">Eliminar</button>
+                <form method="post" action="{{ url_for('del_ingreso', id=r.id) }}" style="display:inline; margin: 0;">
+                  <button class="danger-action btn-del-item" title="Eliminar ingreso">
+                    <span class="desktop-only">Eliminar</span>
+                    <span class="mobile-only">✕</span>
+                  </button>
                 </form>
               </td>
             </tr>

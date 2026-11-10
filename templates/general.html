@@ -122,29 +122,6 @@
   </div>
 </div>
 
-<!-- CUMPLIMIENTO SEMANAL DE ENTRENAMIENTO -->
-<div class="card" style="margin-top: 16px;">
-  <div class="card-header">
-    <h2 class="card-title">Consistencia de entrenamiento semanal</h2>
-    <span class="card-subtitle">{{ dias_entrenados_semana }} días completados &bull; {{ '%.0f'|format(volumen_semanal.total_volumen) }} kg levantados</span>
-  </div>
-  <div class="semana-pills">
-    {% for s in semana_entrenamiento %}
-    <div class="semana-pill-day {{ 'hoy' if s.es_hoy else '' }}">
-      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">
-        {{ s.dia_nombre }}
-      </div>
-      <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 4px auto; font-weight: 700; font-size: 13px; background: {{ 'var(--success-bg)' if s.hecho else 'var(--bg-subtle)' }}; color: {{ 'var(--success)' if s.hecho else 'var(--text-muted)' }}; border: 1px solid {{ 'var(--success-border)' if s.hecho else 'var(--border-light)' }};">
-        {{ '✓' if s.hecho else s.dia_num }}
-      </div>
-      <div style="font-size: 10px; color: var(--text-subtle);">
-        {{ 'Listo' if s.hecho else 'Descanso' }}
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-</div>
-
 {% else %}
 <!-- =========================================================================
      VISTA DEL DÍA: ENFOQUE OPERATIVO EN ACCIONES DE HOY

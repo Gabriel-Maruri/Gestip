@@ -136,8 +136,11 @@
                 <span class="badge pr" title="Récord personal histórico">PR: {{ '%.1f'|format(e.pr_peso) }} kg</span>
                 {% endif %}
               </div>
-              <form method="post" action="{{ url_for('del_ejercicio', id=e.id) }}" style="display:inline;">
-                <button class="danger-action" title="Eliminar ejercicio de la rutina">Eliminar</button>
+              <form method="post" action="{{ url_for('del_ejercicio', id=e.id) }}" style="display:inline; margin: 0;">
+                <button class="danger-action btn-del-item" title="Eliminar ejercicio de la rutina">
+                  <span class="desktop-only">Eliminar</span>
+                  <span class="mobile-only">✕</span>
+                </button>
               </form>
             </div>
 
