@@ -1,5 +1,8 @@
 -- Esquema completo multiusuario para la base de datos "gestion"
 
+-- Extensiones recomendadas
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
 -- 0. Usuarios y autenticación
 CREATE TABLE IF NOT EXISTS usuario (
   id SERIAL PRIMARY KEY,

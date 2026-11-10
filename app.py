@@ -596,14 +596,24 @@ def buscar_alimento():
     palabras = request.args.get("q", "").strip().split()
     if not palabras or sum(len(p) for p in palabras) < 2:
         return jsonify([])
-    cond = " AND ".join(["nombre ILIKE %s"] * len(palabras))
-    filas = q(f"""
-        SELECT id, nombre, categoria, unidad, gramos_unidad, kcal, proteina, carbohidratos, grasa
-        FROM alimento
-        WHERE {cond}
-        ORDER BY length(nombre), nombre
-        LIMIT 25
-    """, [f"%{p}%" for p in palabras])
+    try:
+        cond = " AND ".join(["unaccent(nombre) ILIKE unaccent(%s)"] * len(palabras))
+        filas = q(f"""
+            SELECT id, nombre, categoria, unidad, gramos_unidad, kcal, proteina, carbohidratos, grasa
+            FROM alimento
+            WHERE {cond}
+            ORDER BY length(nombre), nombre
+            LIMIT 25
+        """, [f"%{p}%" for p in palabras])
+    except Exception:
+        cond = " AND ".join(["nombre ILIKE %s"] * len(palabras))
+        filas = q(f"""
+            SELECT id, nombre, categoria, unidad, gramos_unidad, kcal, proteina, carbohidratos, grasa
+            FROM alimento
+            WHERE {cond}
+            ORDER BY length(nombre), nombre
+            LIMIT 25
+        """, [f"%{p}%" for p in palabras])
     return jsonify(filas)
 
 
