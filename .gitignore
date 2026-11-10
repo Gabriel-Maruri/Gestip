@@ -25,3 +25,9 @@ pip-delete-this-directory.txt
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Agent and temporary tool artifacts
+.agents/
+graphify-out/
+scratch/
+
