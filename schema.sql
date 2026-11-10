@@ -172,7 +172,8 @@ CREATE TABLE IF NOT EXISTS registro_serie (
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
   numero_serie INT NOT NULL CHECK (numero_serie > 0),
   peso_kg NUMERIC(6,2) NOT NULL DEFAULT 0 CHECK (peso_kg >= 0),
-  repeticiones INT NOT NULL CHECK (repeticiones > 0)
+  repeticiones INT NOT NULL CHECK (repeticiones > 0),
+  finalizada BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS catalogo_ejercicio (

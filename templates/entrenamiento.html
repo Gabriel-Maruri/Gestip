@@ -23,7 +23,7 @@
           <span class="card-subtitle">{{ secciones.values()|map('length')|sum }} ejercicios configurados</span>
         </div>
 
-        <!-- FILTROS DE VISTA Y SELECTOR DE PLANTILLAS -->
+        <!-- FILTROS DE VISTA Y ACCIONES DE RUTINA -->
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
           <a href="{{ url_for('entrenamiento', vista='todos', mes=mes) }}" 
              class="badge {{ 'primary' if vista != 'hoy' and not plantilla_id else '' }}" 
@@ -45,6 +45,24 @@
             </option>
             {% endfor %}
           </select>
+          {% endif %}
+
+          <form method="post" action="{{ url_for('finalizar_rutina') }}" style="margin: 0;" onsubmit="return confirm('¿Deseas finalizar la rutina de hoy? Las series registradas se guardarán en tu historial y la plantilla quedará limpia.');">
+            <input type="hidden" name="vista" value="{{ vista or '' }}">
+            <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
+            <button class="primary" style="padding: 5px 11px; font-size: 11.5px; background: #059669; border-color: #059669;" title="Finaliza la rutina y limpia las series de la plantilla">
+              Finalizar rutina
+            </button>
+          </form>
+
+          {% if total_series_activas > 0 %}
+          <form method="post" action="{{ url_for('limpiar_series_hoy') }}" style="margin: 0;" onsubmit="return confirm('¿Borrar todas las series activas de hoy sin guardar en el historial?');">
+            <input type="hidden" name="vista" value="{{ vista or '' }}">
+            <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
+            <button class="danger-action" style="padding: 5px 9px; font-size: 11.5px;" title="Borrar series de hoy">
+              Limpiar series
+            </button>
+          </form>
           {% endif %}
         </div>
       </div>
@@ -70,24 +88,47 @@
 
         <div style="padding: 12px 14px;">
           {% if d_info %}
-          <!-- Submenú para asignar días de la semana a esta plantilla -->
-          <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: var(--radius-xs); margin-bottom: 12px; border: 1px solid var(--border-divider);">
-            <details class="linear-disclosure" style="margin: 0;">
-              <summary style="font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer;">
-                Asignar días de la semana a esta plantilla
-              </summary>
-              <form method="post" action="{{ url_for('asignar_dias_rutina', id=d_info.id) }}" style="margin-top: 8px;">
-                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+          <!-- CALENDARIO SEMANAL DE ASIGNACIÓN (CENTRADO A LA MITAD) -->
+          <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+            <div style="background: var(--bg-subtle); border: 1px solid var(--border-divider); border-radius: var(--radius-sm); padding: 10px 16px; width: 100%; max-width: 480px; text-align: center;">
+              <form method="post" action="{{ url_for('asignar_dias_rutina', id=d_info.id) }}">
+                <input type="hidden" name="vista" value="{{ vista or '' }}">
+                <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">
+                    Días asignados en la semana
+                  </span>
+                  <button class="primary" style="padding: 2px 9px; font-size: 11px;">
+                    Confirmar días
+                  </button>
+                </div>
+                
+                <div style="display: flex; justify-content: center; align-items: center; gap: 5px; flex-wrap: wrap;">
                   {% for dia_sem in dias_semana_nombres %}
-                  <label style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; cursor: pointer; background: var(--bg-surface); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-light);">
-                    <input type="checkbox" name="dias_semana" value="{{ dia_sem }}" {{ 'checked' if dia_sem in d_info.dias_lista else '' }}>
-                    <span>{{ dia_sem }}</span>
+                  {% set is_sel = dia_sem in d_info.dias_lista %}
+                  <label class="week-day-pill {{ 'active' if is_sel else '' }}" 
+                         style="display: inline-flex; align-items: center; justify-content: center; min-width: 42px; height: 32px; border-radius: var(--radius-xs); border: 1px solid {{ 'var(--accent-primary)' if is_sel else 'var(--border-light)' }}; background: {{ 'var(--accent-primary)' if is_sel else 'var(--bg-surface)' }}; color: {{ '#ffffff' if is_sel else 'var(--text-secondary)' }}; font-size: 11.5px; font-weight: 600; cursor: pointer; user-select: none; transition: all 0.15s ease;"
+                         title="{{ dia_sem }}">
+                    <input type="checkbox" name="dias_semana" value="{{ dia_sem }}" {{ 'checked' if is_sel else '' }} 
+                           style="position: absolute; opacity: 0; pointer-events: none;"
+                           onchange="
+                             if (this.checked) {
+                               this.parentElement.style.background = 'var(--accent-primary)';
+                               this.parentElement.style.borderColor = 'var(--accent-primary)';
+                               this.parentElement.style.color = '#ffffff';
+                             } else {
+                               this.parentElement.style.background = 'var(--bg-surface)';
+                               this.parentElement.style.borderColor = 'var(--border-light)';
+                               this.parentElement.style.color = 'var(--text-secondary)';
+                             }
+                           ">
+                    <span>{{ dia_sem[:3] }}</span>
                   </label>
                   {% endfor %}
                 </div>
-                <button class="primary" style="padding: 3px 10px; font-size: 11.5px;">Confirmar días</button>
               </form>
-            </details>
+            </div>
           </div>
           {% endif %}
 
@@ -114,6 +155,8 @@
                 <div class="serie-tag">
                   <span><strong>S{{ s.numero_serie }}:</strong> {{ '%.1f'|format(s.peso_kg) }} kg × {{ s.repeticiones }} reps</span>
                   <form method="post" action="{{ url_for('del_serie', id=s.id) }}" style="display:inline; margin:0;">
+                    <input type="hidden" name="vista" value="{{ vista or '' }}">
+                    <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
                     <button class="danger-action" style="padding: 1px 4px; font-size: 10px;" title="Borrar serie">✕</button>
                   </form>
                 </div>
@@ -125,6 +168,8 @@
               <form method="post" action="{{ url_for('add_serie') }}" class="inline-serie-form">
                 <input type="hidden" name="ejercicio_id" value="{{ e.id }}">
                 <input type="hidden" name="numero_serie" value="{{ e.siguiente_serie }}">
+                <input type="hidden" name="vista" value="{{ vista or '' }}">
+                <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
                 
                 <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">
                   Serie {{ e.siguiente_serie }}:
@@ -136,6 +181,28 @@
             </div>
           </div>
           {% endfor %}
+
+          {% if lista %}
+          <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-divider); flex-wrap: wrap;">
+            <form method="post" action="{{ url_for('finalizar_rutina') }}" style="margin: 0;" onsubmit="return confirm('¿Deseas finalizar la rutina de hoy? Las series se guardarán en tu historial y la plantilla quedará limpia.');">
+              <input type="hidden" name="vista" value="{{ vista or '' }}">
+              <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
+              <button class="primary" style="padding: 6px 16px; font-size: 12px; background: #059669; border-color: #059669;">
+                Finalizar rutina de hoy
+              </button>
+            </form>
+
+            {% if total_series_activas > 0 %}
+            <form method="post" action="{{ url_for('limpiar_series_hoy') }}" style="margin: 0;" onsubmit="return confirm('¿Borrar todas las series activas de hoy sin guardar en el historial?');">
+              <input type="hidden" name="vista" value="{{ vista or '' }}">
+              <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
+              <button class="danger-action" style="padding: 6px 12px; font-size: 12px;">
+                Limpiar series sin guardar
+              </button>
+            </form>
+            {% endif %}
+          </div>
+          {% endif %}
         </div>
       </details>
       {% else %}

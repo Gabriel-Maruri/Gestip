@@ -102,8 +102,19 @@ def q(sql, args=(), one=False):
 # --------------------------------------------------------------------------
 # Protocolos de autenticación y autorización (Control de acceso)
 # --------------------------------------------------------------------------
+_schema_migrated = False
+
 @app.before_request
 def cargar_usuario():
+    global _schema_migrated
+    if not _schema_migrated:
+        try:
+            q("ALTER TABLE dia_rutina ADD COLUMN IF NOT EXISTS dias_semana TEXT DEFAULT '';")
+            q("ALTER TABLE registro_serie ADD COLUMN IF NOT EXISTS finalizada BOOLEAN DEFAULT FALSE;")
+            _schema_migrated = True
+        except Exception:
+            pass
+
     g.user = None
     uid = session.get("user_id")
     if uid:
@@ -1033,13 +1044,22 @@ def entrenamiento():
         ORDER BY d.id NULLS LAST, e.id
     """, (uid, uid))
 
-    # Series registradas hoy por el usuario
+    # Series registradas hoy por el usuario (solo las activas / no finalizadas)
     series_hoy = q("""
         SELECT id, ejercicio_id, numero_serie, peso_kg, repeticiones
         FROM registro_serie
-        WHERE fecha = CURRENT_DATE AND user_id = %s
+        WHERE fecha = CURRENT_DATE AND user_id = %s AND (finalizada IS FALSE OR finalizada IS NULL)
         ORDER BY ejercicio_id, numero_serie
     """, (uid,))
+    total_series_activas = len(series_hoy)
+
+    # Verificar si el usuario ya finalizó su rutina de hoy
+    rutina_finalizada_hoy = bool(q("""
+        SELECT 1 FROM registro_serie 
+        WHERE user_id = %s AND fecha = CURRENT_DATE AND finalizada = TRUE 
+        LIMIT 1
+    """, (uid,), one=True))
+
     series_por_ejercicio = {}
     for s in series_hoy:
         series_por_ejercicio.setdefault(s["ejercicio_id"], []).append(s)
@@ -1064,16 +1084,16 @@ def entrenamiento():
         if p_obj and p_obj["nombre"] in secciones:
             secciones = {p_obj["nombre"]: secciones[p_obj["nombre"]]}
 
-    # Historial de sesiones anteriores del usuario
+    # Historial de sesiones anteriores o rutinas ya finalizadas hoy
     historial_entrenamientos = q("""
         SELECT rs.fecha, e.nombre AS ejercicio, COUNT(rs.id) AS series_hechas,
                MAX(rs.peso_kg) AS peso_max, SUM(rs.repeticiones) AS total_reps
         FROM registro_serie rs
         JOIN ejercicio e ON e.id = rs.ejercicio_id
-        WHERE rs.fecha < CURRENT_DATE AND rs.user_id = %s
+        WHERE (rs.fecha < CURRENT_DATE OR rs.finalizada = TRUE) AND rs.user_id = %s
         GROUP BY rs.fecha, e.nombre
         ORDER BY rs.fecha DESC, e.nombre
-        LIMIT 15
+        LIMIT 20
     """, (uid,))
 
     grupo = request.args.get("grupo")
@@ -1097,6 +1117,8 @@ def entrenamiento():
         plantilla_id=plantilla_id,
         dia_hoy_nombre=dia_hoy_nombre,
         dias_semana_nombres=DIAS_SEMANA_COMPLETO,
+        total_series_activas=total_series_activas,
+        rutina_finalizada_hoy=rutina_finalizada_hoy,
         grupo=grupo,
         grupos=q("SELECT DISTINCT grupo FROM catalogo_ejercicio ORDER BY grupo"),
         sugeridos=sugeridos,
@@ -1112,7 +1134,39 @@ def asignar_dias_rutina(id):
     dias_str = ",".join(dias_sel)
     q("UPDATE dia_rutina SET dias_semana = %s WHERE id = %s AND user_id = %s",
       (dias_str, id, uid))
-    return redirect(url_for("entrenamiento"))
+    vista = request.form.get("vista")
+    plantilla_id = request.form.get("plantilla_id")
+    return redirect(url_for("entrenamiento", vista=vista, plantilla_id=plantilla_id))
+
+
+@app.post("/entrenamiento/finalizar")
+@login_required
+def finalizar_rutina():
+    uid = g.user["id"]
+    # 1. Asegurar registro del día entrenado en el calendario
+    q("INSERT INTO entrenamiento(user_id, fecha) VALUES (%s, CURRENT_DATE) ON CONFLICT DO NOTHING", (uid,))
+    
+    # 2. Finalizar todas las series activas de hoy (se archivan en el historial y se limpia la plantilla)
+    q("""
+        UPDATE registro_serie 
+        SET finalizada = TRUE 
+        WHERE user_id = %s AND fecha = CURRENT_DATE AND (finalizada IS FALSE OR finalizada IS NULL)
+    """, (uid,))
+    
+    vista = request.form.get("vista")
+    plantilla_id = request.form.get("plantilla_id")
+    return redirect(url_for("entrenamiento", vista=vista, plantilla_id=plantilla_id))
+
+
+@app.post("/entrenamiento/limpiar-hoy")
+@login_required
+def limpiar_series_hoy():
+    uid = g.user["id"]
+    # Borrar permanentemente las series registradas hoy si se solicita restablecer la plantilla
+    q("DELETE FROM registro_serie WHERE user_id = %s AND fecha = CURRENT_DATE", (uid,))
+    vista = request.form.get("vista")
+    plantilla_id = request.form.get("plantilla_id")
+    return redirect(url_for("entrenamiento", vista=vista, plantilla_id=plantilla_id))
 
 
 @app.post("/entrenamiento/marcar")
@@ -1142,20 +1196,24 @@ def add_serie():
         return redirect(url_for("entrenamiento"))
 
     q("""
-        INSERT INTO registro_serie(user_id, ejercicio_id, numero_serie, peso_kg, repeticiones, fecha)
-        VALUES (%s, %s, %s, %s, %s, CURRENT_DATE)
+        INSERT INTO registro_serie(user_id, ejercicio_id, numero_serie, peso_kg, repeticiones, fecha, finalizada)
+        VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, FALSE)
     """, (uid, ejercicio_id, numero_serie, peso_kg, repeticiones))
 
     # Marcar el día automáticamente como entrenado en el calendario del usuario
     q("INSERT INTO entrenamiento(user_id, fecha) VALUES (%s, CURRENT_DATE) ON CONFLICT DO NOTHING", (uid,))
-    return redirect(url_for("entrenamiento"))
+    vista = f.get("vista")
+    plantilla_id = f.get("plantilla_id")
+    return redirect(url_for("entrenamiento", vista=vista, plantilla_id=plantilla_id))
 
 
 @app.post("/entrenamiento/serie/<int:id>/borrar")
 @login_required
 def del_serie(id):
     q("DELETE FROM registro_serie WHERE id = %s AND user_id = %s", (id, g.user["id"]))
-    return redirect(url_for("entrenamiento"))
+    vista = request.form.get("vista")
+    plantilla_id = request.form.get("plantilla_id")
+    return redirect(url_for("entrenamiento", vista=vista, plantilla_id=plantilla_id))
 
 
 @app.post("/entrenamiento/ejercicio")
