@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block c %}
 
+<!-- ENCABEZADO DE ALIMENTACIÓN -->
+<header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h1 style="font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.02em;">Control de Alimentación y Nutrición</h1>
+    <span style="font-size: 12.5px; color: var(--text-muted);">
+      Registro diario de comidas, hidratación y balance calórico
+    </span>
+  </div>
+</header>
+
 <!-- TARJETAS MÉTRICAS CON METAS Y PROGRESO LINEAL -->
 <div class="stats-grid">
   <!-- CALORÍAS -->
@@ -316,7 +326,7 @@
 
         <!-- Creador interactivo de plato / junta de comidas -->
         <div style="background: var(--bg-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 14px;">
-          <h4 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700;">Juntar comidas en un plato nuevo</h4>
+          <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700;">Juntar comidas en un plato nuevo</h3>
           
           <div class="form-row" style="margin-bottom: 10px;">
             <label style="flex: 1.5; min-width: 160px;">

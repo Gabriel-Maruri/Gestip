@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% block extra_head %}
-<script src="{{ url_for('static', filename='chart.min.js') }}"></script>
+{% if modo == 'semana' %}
+<script defer src="{{ url_for('static', filename='chart.min.js') }}"></script>
+{% endif %}
 {% endblock %}
 {% block c %}
 
 <!-- ENCABEZADO Y SELECTOR DE VISTA: DÍA VS SEMANA -->
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+<header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
   <div>
     <h1 style="font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.02em;">Panel General</h1>
     <span style="font-size: 12.5px; color: var(--text-muted);">
@@ -24,7 +26,7 @@
       Resumen semanal
     </a>
   </div>
-</div>
+</header>
 
 <!-- TARJETAS MÉTRICAS CLAVE -->
 <div class="stats-grid">

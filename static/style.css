@@ -48,7 +48,7 @@
 }
 
 html, body {
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100vw;
 }
 
@@ -180,6 +180,21 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+.main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
 
 /* --------------------------------------------------------------------------
    TARJETAS Y MÓDULOS LINEALES
@@ -369,7 +384,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* BOTONES LINEALES Y PROFESIONALES */
-button, .btn, a.primary, a.sec, a.danger-action {
+button, a.primary, a.sec, a.danger-action {
   font: inherit;
   font-size: 12.5px;
   font-weight: 500;
@@ -388,32 +403,32 @@ button, .btn, a.primary, a.sec, a.danger-action {
   box-sizing: border-box;
 }
 
-button:active, .btn:active, a.primary:active, a.sec:active {
+button:active, a.primary:active, a.sec:active {
   transform: scale(0.98);
 }
 
-button.primary, a.primary, .btn-primary {
+button.primary, a.primary {
   background-color: var(--accent-primary);
   color: #ffffff !important;
   border-color: var(--accent-primary);
   box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.1);
 }
 
-button.primary:hover, a.primary:hover, .btn-primary:hover {
+button.primary:hover, a.primary:hover {
   background-color: var(--accent-primary-hover);
   border-color: var(--accent-primary-hover);
   color: #ffffff !important;
   box-shadow: 0 2px 4px 0 rgba(15, 23, 42, 0.16);
 }
 
-button.sec, a.sec, .btn-sec {
+button.sec, a.sec {
   background-color: var(--bg-surface);
   color: var(--text-secondary) !important;
   border: 1px solid var(--border-light);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
 
-button.sec:hover, a.sec:hover, .btn-sec:hover {
+button.sec:hover, a.sec:hover {
   background-color: var(--bg-hover);
   color: var(--text-primary) !important;
   border-color: #d1d5db;
@@ -567,6 +582,54 @@ tr:hover td {
 /* --------------------------------------------------------------------------
    ENTRENAMIENTO: SERIES REALES Y SOBRECARGA PROGRESIVA
    -------------------------------------------------------------------------- */
+.workout-sticky-header {
+  position: sticky;
+  top: 56px;
+  z-index: 35;
+  background-color: var(--bg-surface);
+  padding: 12px 16px;
+  margin: -20px -20px 14px -20px;
+  border-bottom: 1px solid var(--border-divider);
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sticky-side-panel {
+  position: sticky;
+  top: 68px;
+  align-self: start;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 1025px) {
+  .sticky-side-panel {
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+  .sticky-side-panel::-webkit-scrollbar {
+    width: 4px;
+  }
+  .sticky-side-panel::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 4px;
+  }
+}
+
+.inline-edit-form {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  padding: 8px 10px;
+}
 .rutina-group {
   margin-bottom: 16px;
   border: 1px solid var(--border-light);
@@ -1150,6 +1213,17 @@ details.linear-disclosure[open] summary::after {
     gap: 14px;
   }
 
+  .sticky-side-panel {
+    position: static !important;
+  }
+
+  .workout-sticky-header {
+    top: 89px;
+    margin: -14px -12px 12px -12px;
+    padding: 10px 12px;
+    border-radius: 0;
+  }
+
   /* TARJETAS COMPACTAS */
   .card {
     padding: 14px 12px;
@@ -1266,19 +1340,72 @@ details.linear-disclosure[open] summary::after {
     display: none !important;
   }
 
+  .mobile-only {
+    display: inline-flex !important;
+  }
+
+  div.mobile-only {
+    display: flex !important;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
   /* MINI-CALENDARIO FLUIDO EN MÓVIL */
   .mini-cal-card {
     position: static !important;
   }
 
   .btn-dia {
-    max-width: 30px;
-    max-height: 30px;
+    min-width: 44px;
+    min-height: 44px;
+    max-width: 44px;
+    max-height: 44px;
     font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cal-nav a {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-del-item {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  button.danger-action, a.danger-action {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .segmented-control a {
+    flex: 1;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
   }
 
   .semana-pills {
-    gap: 2px;
+    gap: 4px;
   }
 
   .cal-legend {
@@ -1288,16 +1415,6 @@ details.linear-disclosure[open] summary::after {
 }
 
 @media (max-width: 640px) {
-  .mobile-only {
-    display: inline-flex !important;
-  }
-  div.mobile-only {
-    display: flex !important;
-  }
-  .desktop-only {
-    display: none !important;
-  }
-
   /* KPIs Y MÉTRICAS: CUADRÍCULA 2x2 ORDENADA */
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);

@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS transaccion_fija (
 -- 2. Alimentación (Catálogo global compartido y registros por usuario)
 CREATE TABLE IF NOT EXISTS alimento (
   id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES usuario(id) ON DELETE CASCADE,
   nombre TEXT NOT NULL UNIQUE,
   categoria TEXT,
   unidad TEXT DEFAULT 'unidad',
@@ -201,4 +202,7 @@ CREATE INDEX IF NOT EXISTS idx_ejercicio_user ON ejercicio(user_id);
 CREATE INDEX IF NOT EXISTS idx_registro_serie_user_fecha ON registro_serie(user_id, fecha);
 CREATE INDEX IF NOT EXISTS idx_registro_serie_ejercicio ON registro_serie(ejercicio_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_catalogo_grupo ON catalogo_ejercicio(grupo);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_usuario_email_lower ON usuario (LOWER(email));
+CREATE INDEX IF NOT EXISTS idx_ingreso_fuente ON ingreso(fuente_id);
+CREATE INDEX IF NOT EXISTS idx_ejercicio_dia ON ejercicio(dia_id);
 

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block c %}
-<div style="max-width: 400px; margin: 40px auto 0;">
-  <div class="card">
-    <div class="card-header">
-      <h2 class="card-title">Iniciar sesión</h2>
+<section style="max-width: 400px; margin: 40px auto 0;">
+  <article class="card">
+    <header class="card-header">
+      <h1 class="card-title">Iniciar sesión</h1>
       <span class="card-subtitle">Accede a tu panel personal</span>
-    </div>
+    </header>
 
     {% if err %}
     <div class="alert-message error">
@@ -13,7 +13,8 @@
     </div>
     {% endif %}
 
-    <form method="post" action="{{ url_for('login') }}">
+    <form method="post" action="{{ url_for('login', next=request.args.get('next')) if request.args.get('next') else url_for('login') }}">
+      <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
       <div style="display: grid; gap: 14px;">
         <label>
           <span>Correo electrónico</span>
@@ -27,13 +28,13 @@
           <input type="checkbox" name="recordar" value="1" checked>
           <span>Mantener la sesión iniciada</span>
         </label>
-        <button class="primary" style="width: 100%; padding: 9px; margin-top: 4px;">Iniciar sesión</button>
+        <button class="primary" style="width: 100%; min-height: 44px; padding: 9px; margin-top: 4px;">Iniciar sesión</button>
       </div>
     </form>
 
-    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-divider); font-size: 12.5px; text-align: center; color: var(--text-muted);">
+    <footer style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-divider); font-size: 12.5px; text-align: center; color: var(--text-muted);">
       ¿No tienes una cuenta? <a href="{{ url_for('registro') }}" style="color: var(--text-primary); font-weight: 600; text-decoration: none;">Crear cuenta</a>
-    </div>
-  </div>
-</div>
+    </footer>
+  </article>
+</section>
 {% endblock %}

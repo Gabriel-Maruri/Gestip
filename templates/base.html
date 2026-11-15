@@ -59,7 +59,7 @@
   </nav>
 
   <main>
-    {% block c %}{% endblock %}
+    {% block content %}{% block c %}{% endblock %}{% endblock %}
   </main>
 
   <!-- Script Service Worker y lógica de instalación PWA -->

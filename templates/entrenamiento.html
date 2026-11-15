@@ -13,11 +13,21 @@
 </form>
 {% endmacro %}
 
+<!-- ENCABEZADO DE ENTRENAMIENTO -->
+<header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h1 style="font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.02em;">Rutinas y Registro de Entrenamiento</h1>
+    <span style="font-size: 12.5px; color: var(--text-muted);">
+      Sobrecarga progresiva, series activas y calendario de actividad
+    </span>
+  </div>
+</header>
+
 <div class="dashboard-grid">
   <!-- COLUMNA PRINCIPAL: RUTINAS, SERIES Y SOBRECARGA PROGRESIVA -->
   <div class="main-column">
     <div class="card">
-      <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
+      <div class="card-header workout-sticky-header">
         <div>
           <h2 class="card-title">Rutina de entrenamiento y series activas</h2>
           <span class="card-subtitle">{{ secciones.values()|map('length')|sum }} ejercicios configurados</span>
@@ -25,6 +35,9 @@
 
         <!-- FILTROS DE VISTA Y ACCIONES DE RUTINA -->
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <div id="sticky-header-timer" class="badge primary" style="display: none; cursor: pointer; font-size: 11.5px; font-weight: 600; padding: 4px 8px;" onclick="toggleTimer()" title="Clic para pausar o reanudar el descanso">
+            ⏱ <span id="header-timer-display">01:30</span>
+          </div>
           <a href="{{ url_for('entrenamiento', vista='todos', mes=mes) }}" 
              class="badge {{ 'primary' if vista != 'hoy' and not plantilla_id else '' }}" 
              style="text-decoration: none; padding: 5px 10px;">
@@ -62,7 +75,7 @@
       <!-- Grupos de rutina por día / plantilla con menú desplegable -->
       {% for nombre, lista in secciones.items() %}
       {% set d_info = dias_map.get(nombre) %}
-      <details open class="rutina-template-details" style="margin-bottom: 14px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-surface);">
+      <details open class="rutina-template-details" data-template-name="{{ nombre }}" style="margin-bottom: 14px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-surface);">
         <summary class="rutina-group-header" style="cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-subtle);">
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <span style="font-weight: 700; font-size: 13.5px;">{{ nombre }}</span>
@@ -127,31 +140,61 @@
           {% endif %}
 
           {% for e in lista %}
-          <div class="exercise-item">
-            <div class="exercise-main-row">
-              <div>
-                <span style="font-weight: 600; font-size: 13.5px;">{{ e.nombre }}</span>
+          <div class="exercise-item" id="exercise-item-{{ e.id }}">
+            <div class="exercise-main-row" id="exercise-main-row-{{ e.id }}">
+              <div style="flex: 1; min-width: 0;">
+                <span style="font-weight: 600; font-size: 13.5px;" id="exercise-name-{{ e.id }}">{{ e.nombre }}</span>
                 <span class="badge" style="margin-left: 6px;">Objetivo: {{ e.series }} × {{ e.repeticiones }}</span>
                 {% if e.pr_peso and e.pr_peso > 0 %}
                 <span class="badge pr" title="Récord personal histórico">PR: {{ '%.1f'|format(e.pr_peso) }} kg</span>
                 {% endif %}
               </div>
-              <form method="post" action="{{ url_for('del_ejercicio', id=e.id) }}" style="display:inline; margin: 0;">
-                <button class="danger-action btn-del-item" title="Eliminar ejercicio de la rutina">
-                  <span class="desktop-only">Eliminar</span>
-                  <span class="mobile-only">✕</span>
+              <div style="display: flex; align-items: center; gap: 5px;">
+                <button type="button" 
+                        class="sec" 
+                        style="padding: 2.5px 7px; font-size: 11px;" 
+                        title="Editar nombre del ejercicio"
+                        onclick="toggleEditarEjercicio({{ e.id }})">
+                  Editar
                 </button>
-              </form>
+                <form method="post" action="{{ url_for('del_ejercicio', id=e.id) }}" style="display:inline; margin: 0;">
+                  <button class="danger-action btn-del-item" title="Eliminar ejercicio de la rutina">
+                    <span class="desktop-only">Eliminar</span>
+                    <span class="mobile-only">✕</span>
+                  </button>
+                </form>
+              </div>
             </div>
+
+            <!-- Formulario en línea de edición de nombre -->
+            <form id="edit-form-{{ e.id }}" 
+                  method="post" 
+                  action="{{ url_for('edit_ejercicio', id=e.id) }}" 
+                  class="inline-edit-form" 
+                  style="display: none; margin: 8px 0;"
+                  onsubmit="guardarEdicionEjercicio(event, {{ e.id }})">
+              <input type="hidden" name="vista" value="{{ vista or '' }}">
+              <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                <input type="text" 
+                       name="nombre" 
+                       id="edit-input-{{ e.id }}" 
+                       value="{{ e.nombre }}" 
+                       required 
+                       style="flex: 1; min-width: 170px; padding: 4px 8px; font-size: 12.5px;">
+                <button type="submit" class="primary" style="padding: 3px 9px; font-size: 11px;">Guardar</button>
+                <button type="button" class="sec" style="padding: 3px 9px; font-size: 11px;" onclick="toggleEditarEjercicio({{ e.id }})">Cancelar</button>
+              </div>
+            </form>
 
             <!-- Series registradas hoy para este ejercicio -->
             <div class="series-container">
               {% if e.series_hoy %}
               <div class="series-tags">
                 {% for s in e.series_hoy %}
-                <div class="serie-tag">
+                <div class="serie-tag" id="serie-tag-{{ s.id }}">
                   <span><strong>S{{ s.numero_serie }}:</strong> {{ '%.1f'|format(s.peso_kg) }} kg × {{ s.repeticiones }} reps</span>
-                  <form method="post" action="{{ url_for('del_serie', id=s.id) }}" style="display:inline; margin:0;">
+                  <form method="post" action="{{ url_for('del_serie', id=s.id) }}" style="display:inline; margin:0;" onsubmit="borrarSerieAjax(event, this, {{ s.id }})">
                     <input type="hidden" name="vista" value="{{ vista or '' }}">
                     <input type="hidden" name="plantilla_id" value="{{ plantilla_id or '' }}">
                     <button class="danger-action" style="padding: 1px 4px; font-size: 10px;" title="Borrar serie">✕</button>
@@ -162,7 +205,7 @@
               {% endif %}
 
               <!-- Formulario en línea para registrar serie -->
-              <form method="post" action="{{ url_for('add_serie') }}" class="inline-serie-form">
+              <form method="post" action="{{ url_for('add_serie') }}" class="inline-serie-form" onsubmit="registrarSerieAjax(event, this)">
                 <input type="hidden" name="ejercicio_id" value="{{ e.id }}">
                 <input type="hidden" name="numero_serie" value="{{ e.siguiente_serie }}">
                 <input type="hidden" name="vista" value="{{ vista or '' }}">
@@ -362,7 +405,7 @@
   </div>
 
   <!-- COLUMNA LATERAL: TEMPORIZADOR Y MINI-CALENDARIO -->
-  <div class="side-column">
+  <div class="side-column sticky-side-panel">
     <!-- TEMPORIZADOR DE DESCANSO INTEGRADO -->
     <div class="timer-widget">
       <div class="card-header" style="margin-bottom: 8px; padding-bottom: 8px;">
@@ -395,28 +438,30 @@
         </div>
       </div>
 
-      <table class="cal-table">
-        <thead>
-          <tr>
-            {% for n in dias_n %}
-            <th>{{ n }}</th>
+      <div class="table-responsive">
+        <table class="cal-table">
+          <thead>
+            <tr>
+              {% for n in dias_n %}
+              <th>{{ n }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for w in semanas %}
+            <tr>
+              {% for d in w %}
+              <td>
+                {% if d %}
+                  {{ casilla(d) }}
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
             {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for w in semanas %}
-          <tr>
-            {% for d in w %}
-            <td>
-              {% if d %}
-                {{ casilla(d) }}
-              {% endif %}
-            </td>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
 
       <!-- Resumen semanal -->
       <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-divider);">
@@ -445,50 +490,94 @@
   </div>
 </div>
 
-<!-- LÓGICA DEL TEMPORIZADOR DE DESCANSO -->
+<!-- LÓGICA DE INTERACCIÓN, TEMPORIZADOR Y PERSISTENCIA -->
 <script>
-let timerSeconds = 90;
-let defaultSeconds = 90;
+// =============================================================================
+// 1. PERSISTENCIA DEL TEMPORIZADOR DE DESCANSO
+// =============================================================================
+const KEY_TIMER_DEFAULT = "gestip_timer_default_sec";
+const KEY_TIMER_END = "gestip_timer_end_timestamp";
+const KEY_TIMER_REMAINING = "gestip_timer_remaining_sec";
+const KEY_TIMER_RUNNING = "gestip_timer_is_running";
+
+let defaultSeconds = parseInt(localStorage.getItem(KEY_TIMER_DEFAULT)) || 90;
+let timerSeconds = defaultSeconds;
 let timerInterval = null;
 let isRunning = false;
 
 function updateDisplay() {
   const m = Math.floor(timerSeconds / 60);
   const s = timerSeconds % 60;
-  document.getElementById("timer-display").textContent = 
-    `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  const timeFormatted = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  
+  const displayEl = document.getElementById("timer-display");
+  if (displayEl) displayEl.textContent = timeFormatted;
+
+  const headerDisplay = document.getElementById("header-timer-display");
+  const headerBadge = document.getElementById("sticky-header-timer");
+  if (headerDisplay) headerDisplay.textContent = timeFormatted;
+  if (headerBadge) {
+    headerBadge.style.display = (isRunning || timerSeconds !== defaultSeconds) ? "inline-flex" : "none";
+  }
 }
 
 function setTimer(sec) {
   pauseTimer();
   defaultSeconds = sec;
   timerSeconds = sec;
+  localStorage.setItem(KEY_TIMER_DEFAULT, sec);
+  localStorage.setItem(KEY_TIMER_REMAINING, sec);
+  localStorage.setItem(KEY_TIMER_RUNNING, "false");
   updateDisplay();
-  document.getElementById("timer-status").textContent = "Listo";
-  document.getElementById("btn-timer-toggle").textContent = "Iniciar";
+  const statusEl = document.getElementById("timer-status");
+  if (statusEl) statusEl.textContent = "Listo";
+  const btnToggle = document.getElementById("btn-timer-toggle");
+  if (btnToggle) btnToggle.textContent = "Iniciar";
 }
 
 function toggleTimer() {
   if (isRunning) {
     pauseTimer();
   } else {
-    startTimer();
+    startTimer(true);
   }
 }
 
-function startTimer() {
+function startTimer(isNewStart = true) {
   if (timerSeconds <= 0) timerSeconds = defaultSeconds;
   isRunning = true;
-  document.getElementById("btn-timer-toggle").textContent = "Pausar";
-  document.getElementById("timer-status").textContent = "Activo";
-  
+
+  if (isNewStart) {
+    const targetEnd = Date.now() + (timerSeconds * 1000);
+    localStorage.setItem(KEY_TIMER_END, targetEnd);
+  }
+  localStorage.setItem(KEY_TIMER_RUNNING, "true");
+
+  const btnToggle = document.getElementById("btn-timer-toggle");
+  if (btnToggle) btnToggle.textContent = "Pausar";
+  const statusEl = document.getElementById("timer-status");
+  if (statusEl) statusEl.textContent = "Activo";
+  updateDisplay();
+
+  clearInterval(timerInterval);
   timerInterval = setInterval(() => {
-    if (timerSeconds > 0) {
+    const endStr = localStorage.getItem(KEY_TIMER_END);
+    if (endStr) {
+      const targetEnd = parseInt(endStr);
+      timerSeconds = Math.max(0, Math.round((targetEnd - Date.now()) / 1000));
+    } else {
       timerSeconds--;
+    }
+
+    if (timerSeconds > 0) {
+      localStorage.setItem(KEY_TIMER_REMAINING, timerSeconds);
       updateDisplay();
     } else {
       pauseTimer();
-      document.getElementById("timer-status").textContent = "Terminado";
+      timerSeconds = 0;
+      updateDisplay();
+      const statusEl = document.getElementById("timer-status");
+      if (statusEl) statusEl.textContent = "Terminado";
       sonarAlerta();
     }
   }, 1000);
@@ -497,26 +586,33 @@ function startTimer() {
 function pauseTimer() {
   isRunning = false;
   clearInterval(timerInterval);
-  document.getElementById("btn-timer-toggle").textContent = "Reanudar";
-  document.getElementById("timer-status").textContent = "En pausa";
+  localStorage.setItem(KEY_TIMER_RUNNING, "false");
+  localStorage.setItem(KEY_TIMER_REMAINING, timerSeconds);
+  const btnToggle = document.getElementById("btn-timer-toggle");
+  if (btnToggle) btnToggle.textContent = "Reanudar";
+  const statusEl = document.getElementById("timer-status");
+  if (statusEl) statusEl.textContent = "En pausa";
+  updateDisplay();
 }
 
 function resetTimer() {
   pauseTimer();
   timerSeconds = defaultSeconds;
+  localStorage.setItem(KEY_TIMER_REMAINING, defaultSeconds);
   updateDisplay();
-  document.getElementById("timer-status").textContent = "Listo";
-  document.getElementById("btn-timer-toggle").textContent = "Iniciar";
+  const statusEl = document.getElementById("timer-status");
+  if (statusEl) statusEl.textContent = "Listo";
+  const btnToggle = document.getElementById("btn-timer-toggle");
+  if (btnToggle) btnToggle.textContent = "Iniciar";
 }
 
-// Generador de tono sonoro con Web Audio API (100% nativo)
 function sonarAlerta() {
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = "sine";
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Tono A5
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
     gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
     osc.connect(gain);
@@ -526,7 +622,224 @@ function sonarAlerta() {
   } catch(e) {}
 }
 
-updateDisplay();
+function initTimer() {
+  const wasRunning = localStorage.getItem(KEY_TIMER_RUNNING) === "true";
+  const endStr = localStorage.getItem(KEY_TIMER_END);
+  const remStr = localStorage.getItem(KEY_TIMER_REMAINING);
+
+  if (wasRunning && endStr) {
+    const targetEnd = parseInt(endStr);
+    const diff = Math.round((targetEnd - Date.now()) / 1000);
+    if (diff > 0) {
+      timerSeconds = diff;
+      startTimer(false);
+      return;
+    } else {
+      timerSeconds = 0;
+      updateDisplay();
+      const statusEl = document.getElementById("timer-status");
+      if (statusEl) statusEl.textContent = "Terminado";
+      localStorage.setItem(KEY_TIMER_RUNNING, "false");
+      return;
+    }
+  }
+
+  if (remStr) {
+    timerSeconds = parseInt(remStr) || defaultSeconds;
+  } else {
+    timerSeconds = defaultSeconds;
+  }
+  updateDisplay();
+}
+
+// =============================================================================
+// 2. PERSISTENCIA DE ESTADO DE PLANTILLAS MINIMIZADAS
+// =============================================================================
+function initTemplateToggles() {
+  document.querySelectorAll(".rutina-template-details").forEach(details => {
+    const name = details.getAttribute("data-template-name");
+    if (!name) return;
+    const key = "gestip_template_open_" + encodeURIComponent(name);
+    const saved = localStorage.getItem(key);
+    if (saved !== null) {
+      details.open = (saved === "true");
+    }
+    details.addEventListener("toggle", () => {
+      localStorage.setItem(key, details.open);
+    });
+  });
+}
+
+// =============================================================================
+// 3. REGISTRO Y ELIMINACIÓN DE SERIES MEDIANTE AJAX (SIN RECARGA DE PÁGINA)
+// =============================================================================
+async function registrarSerieAjax(e, form) {
+  e.preventDefault();
+  const submitBtn = form.querySelector('button[type="submit"], button.sec');
+  const origBtnText = submitBtn ? submitBtn.textContent : "";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "...";
+  }
+
+  try {
+    const formData = new FormData(form);
+    const resp = await fetch(form.action, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.ok) {
+        // Encontrar o crear el contenedor .series-tags
+        const exerciseItem = form.closest(".exercise-item");
+        const seriesContainer = exerciseItem.querySelector(".series-container");
+        let seriesTags = seriesContainer.querySelector(".series-tags");
+        if (!seriesTags) {
+          seriesTags = document.createElement("div");
+          seriesTags.className = "series-tags";
+          seriesContainer.insertBefore(seriesTags, form);
+        }
+
+        // Crear la píldora de la nueva serie
+        const tag = document.createElement("div");
+        tag.className = "serie-tag";
+        tag.id = `serie-tag-${data.serie_id}`;
+        tag.innerHTML = `
+          <span><strong>S${data.numero_serie}:</strong> ${Number(data.peso_kg).toFixed(1)} kg × ${data.repeticiones} reps</span>
+          <form method="post" action="/entrenamiento/serie/${data.serie_id}/borrar" style="display:inline; margin:0;" onsubmit="borrarSerieAjax(event, this, ${data.serie_id})">
+            <input type="hidden" name="vista" value="${formData.get('vista') || ''}">
+            <input type="hidden" name="plantilla_id" value="${formData.get('plantilla_id') || ''}">
+            <button class="danger-action" style="padding: 1px 4px; font-size: 10px;" title="Borrar serie">✕</button>
+          </form>
+        `;
+        seriesTags.appendChild(tag);
+
+        // Incrementar la siguiente serie en el formulario
+        const numInput = form.querySelector('input[name="numero_serie"]');
+        if (numInput) numInput.value = data.siguiente_serie;
+        const serieLabel = form.querySelector('span');
+        if (serieLabel) serieLabel.textContent = `Serie ${data.siguiente_serie}:`;
+
+        // Efecto visual suave de confirmación
+        tag.style.transition = "background-color 0.4s ease";
+        tag.style.backgroundColor = "var(--success-bg)";
+        setTimeout(() => {
+          tag.style.backgroundColor = "";
+        }, 600);
+      }
+    } else {
+      form.submit();
+    }
+  } catch (err) {
+    form.submit();
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = origBtnText;
+    }
+  }
+}
+
+async function borrarSerieAjax(e, form, serieId) {
+  e.preventDefault();
+  const btn = form.querySelector("button");
+  if (btn) btn.disabled = true;
+
+  try {
+    const formData = new FormData(form);
+    const resp = await fetch(form.action, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+
+    if (resp.ok) {
+      const tag = document.getElementById(`serie-tag-${serieId}`) || form.closest(".serie-tag");
+      if (tag) {
+        tag.style.transition = "opacity 0.2s, transform 0.2s";
+        tag.style.opacity = "0";
+        tag.style.transform = "scale(0.8)";
+        setTimeout(() => tag.remove(), 200);
+      }
+    } else {
+      form.submit();
+    }
+  } catch (err) {
+    form.submit();
+  }
+}
+
+// =============================================================================
+// 4. EDICIÓN DEL NOMBRE DE EJERCICIOS EN PLANTILLA
+// =============================================================================
+function toggleEditarEjercicio(id) {
+  const form = document.getElementById(`edit-form-${id}`);
+  if (!form) return;
+  const isHidden = (form.style.display === "none" || !form.style.display);
+  form.style.display = isHidden ? "block" : "none";
+  if (isHidden) {
+    const input = document.getElementById(`edit-input-${id}`);
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }
+}
+
+async function guardarEdicionEjercicio(e, id) {
+  e.preventDefault();
+  const form = document.getElementById(`edit-form-${id}`);
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const origText = submitBtn ? submitBtn.textContent : "";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "...";
+  }
+
+  try {
+    const formData = new FormData(form);
+    const resp = await fetch(form.action, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.ok) {
+        const titleSpan = document.getElementById(`exercise-name-${id}`);
+        if (titleSpan) {
+          titleSpan.textContent = data.nombre;
+        }
+        form.style.display = "none";
+      }
+    } else {
+      form.submit();
+    }
+  } catch (err) {
+    form.submit();
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = origText;
+    }
+  }
+}
+
+// Inicializar componentes al cargar
+document.addEventListener("DOMContentLoaded", () => {
+  initTimer();
+  initTemplateToggles();
+});
 </script>
 
 {% endblock %}
